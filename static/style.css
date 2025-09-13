@@ -1,0 +1,207 @@
+/* Dark Mode CSS Variables */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #666666;
+  --accent-green: #00ff88;
+  --accent-blue: #0088ff;
+  --accent-orange: #ff8800;
+  --border-color: #333333;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Theme */
+body.dark-theme {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .navbar {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dark-theme .navbar-brand,
+.dark-theme .nav-link {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .nav-link:hover {
+  color: var(--accent-green) !important;
+}
+
+.dark-theme .card {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.dark-theme .card-header {
+  background-color: var(--bg-tertiary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.dark-theme .table {
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .table-dark {
+  background-color: var(--bg-tertiary) !important;
+}
+
+.dark-theme .table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.dark-theme .btn-primary {
+  background-color: var(--accent-blue) !important;
+  border-color: var(--accent-blue) !important;
+}
+
+.dark-theme .btn-success {
+  background-color: var(--accent-green) !important;
+  border-color: var(--accent-green) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark-theme .btn-outline-success {
+  color: var(--accent-green) !important;
+  border-color: var(--accent-green) !important;
+}
+
+.dark-theme .btn-outline-success:hover {
+  background-color: var(--accent-green) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark-theme .form-control {
+  background-color: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .form-control:focus {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--accent-green) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 255, 136, 0.25) !important;
+}
+
+.dark-theme .alert-info {
+  background-color: rgba(0, 136, 255, 0.1) !important;
+  border-color: var(--accent-blue) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .alert-success {
+  background-color: rgba(0, 255, 136, 0.1) !important;
+  border-color: var(--accent-green) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-theme .text-muted {
+  color: var(--text-muted) !important;
+}
+
+.dark-theme .text-success {
+  color: var(--accent-green) !important;
+}
+
+.dark-theme .text-info {
+  color: var(--accent-blue) !important;
+}
+
+.dark-theme .badge.bg-success {
+  background-color: var(--accent-green) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark-theme .badge.bg-info {
+  background-color: var(--accent-blue) !important;
+  color: var(--bg-primary) !important;
+}
+
+.dark-theme .badge.bg-primary {
+  background-color: var(--accent-blue) !important;
+  color: var(--bg-primary) !important;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 8px 16px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+  background: var(--accent-green);
+  color: var(--bg-primary);
+}
+
+/* Custom EcoAI Branding */
+.eco-icon {
+  color: var(--accent-green) !important;
+}
+
+.dark-theme .hero-section {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Chart Container Styling */
+.chart-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.dark-theme .chart-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* Statistics Cards */
+.stats-card {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+}
+
+.stats-card .icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: var(--accent-green);
+}
+
+.stats-card .number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.stats-card .label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
