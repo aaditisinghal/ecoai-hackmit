@@ -453,8 +453,8 @@ def admin_dashboard():
     c.execute('SELECT username, email, created_at FROM users ORDER BY created_at DESC LIMIT 10')
     recent_users = c.fetchall()
     
-    # Get recent receipts
-    c.execute('SELECT receipt_id, tokens_before, tokens_after, co2_g_before, co2_g_after, created_at FROM receipts ORDER BY created_at DESC LIMIT 10')
+    # Get recent receipts (using timestamp column that exists)
+    c.execute('SELECT receipt_id, tokens_before, tokens_after, co2_g_before, co2_g_after, timestamp FROM receipts ORDER BY timestamp DESC LIMIT 10')
     recent_receipts = c.fetchall()
     
     conn.close()
@@ -489,7 +489,7 @@ def admin_receipts():
     
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    c.execute('SELECT * FROM receipts ORDER BY created_at DESC')
+    c.execute('SELECT * FROM receipts ORDER BY timestamp DESC')
     receipts = c.fetchall()
     conn.close()
     
@@ -520,7 +520,7 @@ def admin_export_data():
         csv_data += f"{user[0]},{user[1]},{user[2]},{user[5]}\n"
     
     csv_data += "\nReceipts Data\n"
-    csv_data += "Receipt ID,Tokens Before,Tokens After,CO2 Before,CO2 After,Quality Score,Created At\n"
+    csv_data += "Receipt ID,Tokens Before,Tokens After,CO2 Before,CO2 After,Quality Score,Timestamp\n"
     for receipt in receipts:
         csv_data += f"{receipt[0]},{receipt[1]},{receipt[2]},{receipt[3]},{receipt[4]},{receipt[5]},{receipt[6]}\n"
     
