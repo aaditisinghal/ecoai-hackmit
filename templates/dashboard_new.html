@@ -171,22 +171,28 @@
                         <tbody>
                             {% for receipt in receipts[:10] %}
                             <tr>
-                                <td>{{ receipt[6][:10] }}</td>
-                                <td>{{ receipt[1] }}</td>
-                                <td>{{ receipt[2] }}</td>
+                                <td>{{ receipt[6] }}</td>
+                                <td>{{ receipt[3] }}</td>
+                                <td>{{ receipt[4] }}</td>
                                 <td>
-                                    <span class="badge bg-success">{{ receipt[1] - receipt[2] }}</span>
+                                    <span class="badge bg-success">{{ receipt[3] - receipt[4] }}</span>
                                 </td>
-                                <td>{{ "%.3f"|format(receipt[3] - receipt[4]) }}g</td>
+                                <td>{{ "%.3f"|format(receipt[7] - receipt[8]) }}g</td>
                                 <td>
-                                    {% if receipt[5] %}
-                                        <span class="badge bg-primary">{{ "%.2f"|format(receipt[5]) }}</span>
+                                    {% if receipt[9] %}
+                                        <span class="badge bg-primary">{{ "%.2f"|format(receipt[9]) }}</span>
                                     {% else %}
                                         <span class="badge bg-secondary">N/A</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge bg-info">Balanced</span>
+                                    {% if receipt[9] and receipt[9] > 0.95 %}
+                                        <span class="badge bg-success">Conservative</span>
+                                    {% elif receipt[9] and receipt[9] >= 0.93 %}
+                                        <span class="badge bg-info">Balanced</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Aggressive</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
