@@ -180,12 +180,13 @@
             }
         }
 
-        // Load dark mode preference
+        // Load dark mode preference (default to dark mode)
         document.addEventListener('DOMContentLoaded', function() {
             const darkMode = localStorage.getItem('darkMode');
             const icon = document.getElementById('darkModeIcon');
             
-            if (darkMode === 'true') {
+            // Default to dark mode if no preference is set
+            if (darkMode === null || darkMode === 'true') {
                 document.body.classList.add('dark-theme');
                 icon.className = 'fas fa-sun';
             }

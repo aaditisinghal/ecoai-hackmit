@@ -19,6 +19,30 @@ body.dark-theme {
   color: var(--text-primary) !important;
 }
 
+/* Force dark mode on dashboard */
+body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure all text elements are white */
+body, body * {
+  color: var(--text-primary) !important;
+}
+
+/* Override Bootstrap defaults */
+body .text-muted {
+  color: var(--text-muted) !important;
+}
+
+body .text-success {
+  color: var(--accent-green) !important;
+}
+
+body .text-info {
+  color: var(--accent-blue) !important;
+}
+
 .dark-theme .navbar {
   background-color: var(--bg-secondary) !important;
   border-bottom: 1px solid var(--border-color);
