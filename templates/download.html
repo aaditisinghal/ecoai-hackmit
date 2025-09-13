@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Download SDK - EcoAI Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="py-5 text-center">
+                <h1><i class="fas fa-download eco-icon"></i> Download EcoAI SDK</h1>
+                <p class="lead">Get the latest version of the EcoAI SDK for green AI optimization</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Options -->
+    <div class="row mb-5">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-code fa-4x eco-icon mb-3"></i>
+                    <h4>Python SDK</h4>
+                    <p class="text-muted">Single-file Python SDK with all features</p>
+                    <div class="mb-3">
+                        <span class="badge bg-success">Latest: v1.0.0</span>
+                        <span class="badge bg-info">Size: ~15KB</span>
+                    </div>
+                    <a href="{{ url_for('download_sdk') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-download"></i> Download SDK
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-copy fa-4x eco-icon mb-3"></i>
+                    <h4>Copy Code</h4>
+                    <p class="text-muted">Copy the SDK code directly into your project</p>
+                    <div class="mb-3">
+                        <span class="badge bg-warning">Manual Setup</span>
+                        <span class="badge bg-info">No Dependencies</span>
+                    </div>
+                    <button class="btn btn-outline-success btn-lg" onclick="showCode()">
+                        <i class="fas fa-eye"></i> View Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Installation Instructions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-wrench"></i> Installation Instructions</h3>
+                </div>
+                <div class="card-body">
+                    <h5>Option 1: Download and Use</h5>
+                    <ol>
+                        <li>Download the SDK file using the button above</li>
+                        <li>Place the <code>ecoai_sdk.py</code> file in your project directory</li>
+                        <li>Import and use in your Python code:</li>
+                    </ol>
+                    
+                    <div class="bg-dark text-light p-3 rounded">
+                        <code>
+                            from ecoai_sdk import EcoAI<br><br>
+                            # Initialize SDK<br>
+                            ecoai = EcoAI(api_key="your_api_key_here")<br><br>
+                            # Optimize a prompt<br>
+                            result = ecoai.optimize_prompt("Your prompt here")<br>
+                            print(result['optimized'])
+                        </code>
+                    </div>
+                    
+                    <h5 class="mt-4">Option 2: Copy Code</h5>
+                    <ol>
+                        <li>Click "View Code" above to see the full SDK code</li>
+                        <li>Copy the entire code block</li>
+                        <li>Create a new file <code>ecoai_sdk.py</code> in your project</li>
+                        <li>Paste the code and save</li>
+                    </ol>
+                    
+                    <h5 class="mt-4">Dependencies</h5>
+                    <p>Install the required dependency:</p>
+                    <div class="bg-dark text-light p-3 rounded">
+                        <code>pip install requests</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-star"></i> SDK Features</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-leaf fa-2x eco-icon"></i>
+                                <h5>Green Optimization</h5>
+                                <p class="text-muted">Reduce AI carbon footprint by up to 29.3%</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-cogs fa-2x eco-icon"></i>
+                                <h5>Multiple Strategies</h5>
+                                <p class="text-muted">Conservative, balanced, and aggressive optimization modes</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-chart-line fa-2x eco-icon"></i>
+                                <h5>Telemetry</h5>
+                                <p class="text-muted">Track your savings and impact in real-time</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-shield-alt fa-2x eco-icon"></i>
+                                <h5>Quality Preserved</h5>
+                                <p class="text-muted">Maintain 94.1% quality while saving tokens</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-bolt fa-2x eco-icon"></i>
+                                <h5>Fast & Lightweight</h5>
+                                <p class="text-muted">Minimal overhead, maximum performance</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-plug fa-2x eco-icon"></i>
+                                <h5>Drop-in Ready</h5>
+                                <p class="text-muted">Easy integration with existing code</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Steps -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-arrow-right"></i> Next Steps</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-user-plus fa-3x eco-icon mb-3"></i>
+                            <h5>1. Get API Key</h5>
+                            <p class="text-muted">Sign up for a free account to get your API key</p>
+                            <a href="{{ url_for('signup') }}" class="btn btn-outline-success">Sign Up</a>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-book fa-3x eco-icon mb-3"></i>
+                            <h5>2. Read Documentation</h5>
+                            <p class="text-muted">Learn how to use the SDK effectively</p>
+                            <a href="{{ url_for('docs') }}" class="btn btn-outline-success">View Docs</a>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-chart-line fa-3x eco-icon mb-3"></i>
+                            <h5>3. Track Progress</h5>
+                            <p class="text-muted">Monitor your carbon savings and impact</p>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Code Modal -->
+<div class="modal fade" id="codeModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-code"></i> EcoAI SDK Source Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="copyCode()">
+                        <i class="fas fa-copy"></i> Copy All Code
+                    </button>
+                </div>
+                <pre><code id="sdkCode">Loading SDK code...</code></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('download_sdk') }}" class="btn btn-success">
+                    <i class="fas fa-download"></i> Download File
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCode() {
+    // Load the SDK code via AJAX
+    fetch('/download/sdk')
+        .then(response => response.text())
+        .then(code => {
+            document.getElementById('sdkCode').textContent = code;
+            new bootstrap.Modal(document.getElementById('codeModal')).show();
+        });
+}
+
+function copyCode() {
+    const code = document.getElementById('sdkCode').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        // Show success message
+        const button = event.target.closest('button');
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        button.classList.add('btn-success');
+        button.classList.remove('btn-outline-secondary');
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

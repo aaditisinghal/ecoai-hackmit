@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - EcoAI Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-line eco-icon"></i> Dashboard</h2>
+                <div class="dropdown">
+                    <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="exportData('csv')">CSV</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportData('json')">JSON</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-receipt fa-2x mb-2"></i>
+                    <h3>{{ total_receipts }}</h3>
+                    <p class="mb-0">Total Optimizations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-coins fa-2x mb-2"></i>
+                    <h3>{{ "{:,}".format(tokens_saved) }}</h3>
+                    <p class="mb-0">Tokens Saved</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-leaf fa-2x mb-2"></i>
+                    <h3>{{ "%.2f"|format(co2_saved) }}g</h3>
+                    <p class="mb-0">CO₂ Saved</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-2x mb-2"></i>
+                    <h3>{{ "%.1f"|format(avg_quality * 100) }}%</h3>
+                    <p class="mb-0">Avg Quality</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Daily Savings Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="savingsChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline-success">
+                            <i class="fas fa-key"></i> View API Key
+                        </a>
+                        <a href="{{ url_for('download') }}" class="btn btn-outline-success">
+                            <i class="fas fa-download"></i> Download SDK
+                        </a>
+                        <a href="{{ url_for('docs') }}" class="btn btn-outline-success">
+                            <i class="fas fa-book"></i> View Documentation
+                        </a>
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        Use your API key to send optimization data to the portal.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Receipts -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-receipt"></i> Recent Optimizations</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_receipts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Receipt ID</th>
+                                        <th>Tokens</th>
+                                        <th>CO₂ Saved</th>
+                                        <th>Quality</th>
+                                        <th>Date</th>
+                                        <th>Optimizations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for receipt in recent_receipts %}
+                                    <tr>
+                                        <td>
+                                            <code>{{ receipt[0][:8] }}...</code>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                {{ receipt[2] }} → {{ receipt[1] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success">
+                                                {{ "%.4f"|format(receipt[3] - receipt[4]) }}g
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="width: 60px;">
+                                                <div class="progress-bar" style="width: {{ receipt[5] * 100 }}%">
+                                                    {{ "%.1f"|format(receipt[5] * 100) }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ receipt[6] }}</td>
+                                        <td>
+                                            {% if receipt[7] %}
+                                                {% set optimizations = receipt[7]|from_json %}
+                                                {% if optimizations %}
+                                                    <span class="badge bg-info">{{ optimizations|length }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">0</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-secondary">0</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No optimizations yet</h5>
+                            <p class="text-muted">Start using the EcoAI SDK to see your optimization data here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    // Export data function
+    function exportData(format) {
+        fetch(`/api/receipts?limit=1000`)
+            .then(response => response.json())
+            .then(data => {
+                if (format === 'csv') {
+                    exportToCSV(data.receipts);
+                } else if (format === 'json') {
+                    exportToJSON(data.receipts);
+                }
+            });
+    }
+
+    function exportToCSV(data) {
+        const headers = ['Receipt ID', 'Tokens Before', 'Tokens After', 'CO2 Before', 'CO2 After', 'Quality Score', 'Timestamp'];
+        const csv = [headers.join(',')];
+        
+        data.forEach(row => {
+            csv.push([
+                row[1], // receipt_id
+                row[2], // tokens_before
+                row[3], // tokens_after
+                row[4], // co2_before
+                row[5], // co2_after
+                row[6], // quality_score
+                row[7]  // timestamp
+            ].join(','));
+        });
+        
+        downloadFile(csv.join('\n'), 'ecoai_receipts.csv', 'text/csv');
+    }
+
+    function exportToJSON(data) {
+        const jsonData = data.map(row => ({
+            receipt_id: row[1],
+            tokens_before: row[2],
+            tokens_after: row[3],
+            co2_before: row[4],
+            co2_after: row[5],
+            quality_score: row[6],
+            timestamp: row[7]
+        }));
+        
+        downloadFile(JSON.stringify(jsonData, null, 2), 'ecoai_receipts.json', 'application/json');
+    }
+
+    function downloadFile(content, filename, type) {
+        const blob = new Blob([content], { type: type });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+
+    // Chart.js setup
+    const dailyStats = {{ daily_stats|tojson }};
+    
+    if (dailyStats && dailyStats.length > 0) {
+        const ctx = document.getElementById('savingsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dailyStats.map(stat => stat[0]),
+                datasets: [{
+                    label: 'Tokens Saved',
+                    data: dailyStats.map(stat => stat[1] || 0),
+                    borderColor: 'rgb(40, 167, 69)',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.1
+                }, {
+                    label: 'CO₂ Saved (g)',
+                    data: dailyStats.map(stat => stat[2] || 0),
+                    borderColor: 'rgb(32, 201, 151)',
+                    backgroundColor: 'rgba(32, 201, 151, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

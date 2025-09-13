@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation - EcoAI Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="py-5">
+                <h1><i class="fas fa-book eco-icon"></i> EcoAI SDK Documentation</h1>
+                <p class="lead">Complete guide to using the EcoAI SDK for green AI optimization</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-rocket"></i> Quick Start</h3>
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li><strong>Download the SDK:</strong> Get the EcoAI SDK from our <a href="{{ url_for('download') }}">download page</a></li>
+                        <li><strong>Get your API key:</strong> <a href="{{ url_for('signup') }}">Sign up</a> for a free account and get your API key</li>
+                        <li><strong>Install dependencies:</strong> <code>pip install requests</code></li>
+                        <li><strong>Start optimizing:</strong> Use the SDK in your Python applications</li>
+                    </ol>
+                    
+                    <div class="bg-dark text-light p-3 rounded mt-3">
+                        <code>
+                            from ecoai_sdk import EcoAI<br><br>
+                            # Initialize with your API key<br>
+                            ecoai = EcoAI(api_key="your_api_key_here")<br><br>
+                            # Optimize a prompt<br>
+                            result = ecoai.optimize_prompt("Please kindly write a detailed summary")<br>
+                            print(f"Optimized: {result['optimized']}")<br>
+                            print(f"CO2 saved: {result['carbon_savings']['co2_g_saved']:.6f}g")
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Reference -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-code"></i> API Reference</h3>
+                </div>
+                <div class="card-body">
+                    <h4>EcoAI Class</h4>
+                    
+                    <h5>Constructor</h5>
+                    <div class="bg-light p-3 rounded mb-3">
+                        <code>EcoAI(api_key: str = None, portal_url: str = None)</code>
+                    </div>
+                    <ul>
+                        <li><strong>api_key:</strong> Your EcoAI Portal API key (optional, for telemetry)</li>
+                        <li><strong>portal_url:</strong> Portal URL (defaults to http://localhost:8000)</li>
+                    </ul>
+                    
+                    <h5>Methods</h5>
+                    
+                    <div class="mb-4">
+                        <h6>optimize_prompt(prompt: str, strategy: str = "balanced")</h6>
+                        <p>Optimize a text prompt to reduce tokens while maintaining quality.</p>
+                        
+                        <h6>Parameters:</h6>
+                        <ul>
+                            <li><strong>prompt:</strong> The text prompt to optimize</li>
+                            <li><strong>strategy:</strong> Optimization strategy ("conservative", "balanced", "aggressive")</li>
+                        </ul>
+                        
+                        <h6>Returns:</h6>
+                        <div class="bg-light p-3 rounded">
+                            <code>
+                                {<br>
+                                &nbsp;&nbsp;"optimized": "optimized prompt text",<br>
+                                &nbsp;&nbsp;"tokens_before": 25,<br>
+                                &nbsp;&nbsp;"tokens_after": 20,<br>
+                                &nbsp;&nbsp;"optimizations_applied": ["Removed 'please'", "Removed 'kindly'"],<br>
+                                &nbsp;&nbsp;"quality_score": 0.95,<br>
+                                &nbsp;&nbsp;"carbon_savings": {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;"co2_g_saved": 0.000123,<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;"kwh_saved": 0.000001<br>
+                                &nbsp;&nbsp;}<br>
+                                }
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optimization Strategies -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-cogs"></i> Optimization Strategies</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5>Conservative</h5>
+                            <p class="text-muted">Minimal optimization, maximum quality preservation</p>
+                            <ul>
+                                <li>Removes only obvious filler words ("please", "kindly")</li>
+                                <li>Preserves all meaning and context</li>
+                                <li>Best for: Critical applications, formal content</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Balanced</h5>
+                            <p class="text-muted">Good balance of optimization and quality</p>
+                            <ul>
+                                <li>Removes common filler words ("please", "kindly", "very", "really")</li>
+                                <li>Maintains high quality while saving tokens</li>
+                                <li>Best for: General use, most applications</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Aggressive</h5>
+                            <p class="text-muted">Maximum token reduction</p>
+                            <ul>
+                                <li>Removes extensive filler words and redundant phrases</li>
+                                <li>Highest token savings</li>
+                                <li>Best for: High-volume applications, cost optimization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Examples -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-lightbulb"></i> Examples</h3>
+                </div>
+                <div class="card-body">
+                    <h5>Basic Usage</h5>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+                            from ecoai_sdk import EcoAI<br><br>
+                            ecoai = EcoAI(api_key="your_api_key")<br><br>
+                            prompt = "Please kindly write a very detailed summary of the meeting notes."<br>
+                            result = ecoai.optimize_prompt(prompt, strategy="balanced")<br><br>
+                            print(f"Original: {prompt}")<br>
+                            print(f"Optimized: {result['optimized']}")<br>
+                            print(f"Tokens saved: {result['tokens_before'] - result['tokens_after']}")<br>
+                            print(f"CO2 saved: {result['carbon_savings']['co2_g_saved']:.6f}g")
+                        </code>
+                    </div>
+                    
+                    <h5>Batch Processing</h5>
+                    <div class="bg-dark text-light p-3 rounded mb-3">
+                        <code>
+                            prompts = [<br>
+                            &nbsp;&nbsp;"Please kindly review this document",<br>
+                            &nbsp;&nbsp;"Could you please help me with this task?",<br>
+                            &nbsp;&nbsp;"I would really appreciate your assistance"<br>
+                            ]<br><br>
+                            for prompt in prompts:<br>
+                            &nbsp;&nbsp;result = ecoai.optimize_prompt(prompt)<br>
+                            &nbsp;&nbsp;print(f"{prompt} → {result['optimized']}")
+                        </code>
+                    </div>
+                    
+                    <h5>Without API Key (Local Only)</h5>
+                    <div class="bg-dark text-light p-3 rounded">
+                        <code>
+                            # Works without API key, but no telemetry to portal<br>
+                            ecoai = EcoAI()<br>
+                            result = ecoai.optimize_prompt("Your prompt here")<br>
+                            print(result['optimized'])
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Practices -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-star"></i> Best Practices</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>✅ Do</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Start with "balanced" strategy</li>
+                                <li><i class="fas fa-check text-success"></i> Test different strategies for your use case</li>
+                                <li><i class="fas fa-check text-success"></i> Monitor quality scores in the portal</li>
+                                <li><i class="fas fa-check text-success"></i> Use API key for telemetry and tracking</li>
+                                <li><i class="fas fa-check text-success"></i> Validate optimized prompts before use</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>❌ Don't</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-times text-danger"></i> Use aggressive strategy for critical content</li>
+                                <li><i class="fas fa-times text-danger"></i> Ignore quality scores</li>
+                                <li><i class="fas fa-times text-danger"></i> Share your API key publicly</li>
+                                <li><i class="fas fa-times text-danger"></i> Optimize already optimized prompts</li>
+                                <li><i class="fas fa-times text-danger"></i> Skip testing in your environment</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-life-ring"></i> Support</h3>
+                </div>
+                <div class="card-body">
+                    <p>Need help? Here are some resources:</p>
+                    <ul>
+                        <li><strong>Dashboard:</strong> <a href="{{ url_for('dashboard') }}">View your optimization metrics</a></li>
+                        <li><strong>API Key:</strong> <a href="{{ url_for('profile') }}">Get your API key</a></li>
+                        <li><strong>Download:</strong> <a href="{{ url_for('download') }}">Download the latest SDK</a></li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Tip:</strong> The EcoAI SDK is designed to be a drop-in replacement that makes your AI applications greener without changing your existing code structure.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
