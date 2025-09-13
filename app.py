@@ -136,7 +136,20 @@ def login():
         if user:
             session['user_id'] = user[0]
             session['username'] = user[1]
-            flash('Login successful!', 'success')
+            session['api_key'] = user[4]
+            
+            # Get user's optimization stats for welcome message
+            conn = sqlite3.connect(DATABASE)
+            c = conn.cursor()
+            c.execute('SELECT COUNT(*), SUM(tokens_before - tokens_after), SUM(co2_g_before - co2_g_after) FROM receipts WHERE user_id = ?', (user[0],))
+            stats = c.fetchone()
+            conn.close()
+            
+            total_optimizations = stats[0] or 0
+            total_tokens_saved = stats[1] or 0
+            total_co2_saved = stats[2] or 0
+            
+            flash(f'Welcome back, {user[1]}! You have completed {total_optimizations} optimizations, saving {total_tokens_saved} tokens and {total_co2_saved:.3f}g CO₂.', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password', 'error')
@@ -232,23 +245,60 @@ def dashboard():
     ''', (user_id,))
     daily_stats = c.fetchall()
     
+    # Get all user's receipts for comprehensive data
+    c.execute('''
+        SELECT * FROM receipts 
+        WHERE user_id = ? 
+        ORDER BY timestamp DESC
+    ''', (user_id,))
+    all_receipts = c.fetchall()
+    
     conn.close()
+    
+    # Calculate comprehensive statistics
+    total_optimizations = len(all_receipts)
+    total_tokens_saved = sum(receipt[3] - receipt[4] for receipt in all_receipts)
+    total_co2_saved = sum(receipt[7] - receipt[8] for receipt in all_receipts)
+    
+    # Calculate quality metrics
+    quality_scores = [receipt[9] for receipt in all_receipts if receipt[9] is not None]
+    avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0.95
+    
+    # Calculate success rate (quality > 0.9)
+    successful_optimizations = len([q for q in quality_scores if q > 0.9])
+    success_rate = successful_optimizations / len(quality_scores) if quality_scores else 0.95
     
     # Create summary object for new dashboard
     summary = {
-        'tokens_saved': tokens_saved,
-        'co2_g_saved': co2_saved,
+        'total_optimizations': total_optimizations,
+        'tokens_saved': total_tokens_saved,
+        'co2_g_saved': total_co2_saved,
         'avg_quality': avg_quality,
-        'parity_rate': 0.95  # Mock success rate
+        'parity_rate': success_rate
     }
     
-    # Create series data for charts
-    series = [{'day': stat[0], 'co2_g_saved': stat[1] or 0} for stat in daily_stats]
+    # Create series data for charts (last 30 days)
+    series = [{'day': stat[0], 'co2_g_saved': stat[1] or 0, 'tokens_saved': stat[2] or 0} for stat in daily_stats]
+    
+    # Get strategy distribution
+    strategy_data = {
+        'conservative': len([r for r in all_receipts if r[9] and r[9] > 0.95]),
+        'balanced': len([r for r in all_receipts if r[9] and 0.93 <= r[9] <= 0.95]),
+        'aggressive': len([r for r in all_receipts if r[9] and r[9] < 0.93])
+    }
     
     return render_template('dashboard_new.html',
                          summary=summary,
                          series=series,
-                         receipts=recent_receipts)
+                         receipts=all_receipts[:20],  # Show last 20 receipts
+                         strategy_data=strategy_data,
+                         user_stats={
+                             'total_receipts': total_optimizations,
+                             'total_tokens_saved': total_tokens_saved,
+                             'total_co2_saved': total_co2_saved,
+                             'avg_quality': avg_quality,
+                             'success_rate': success_rate
+                         })
 
 # API Endpoints
 @app.route('/api/ingest/batch', methods=['POST'])
