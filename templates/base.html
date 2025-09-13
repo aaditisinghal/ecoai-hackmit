@@ -72,7 +72,18 @@
                 </ul>
                 
                 <ul class="navbar-nav">
-                    {% if session.user_id %}
+                    {% if session.admin_logged_in %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                <i class="fas fa-shield-alt"></i> Admin
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    {% elif session.user_id %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user"></i> {{ session.username }}
@@ -96,6 +107,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('signup') }}">
                                 <i class="fas fa-user-plus"></i> Sign Up
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_login') }}">
+                                <i class="fas fa-shield-alt"></i> Admin
                             </a>
                         </li>
                     {% endif %}

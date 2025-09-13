@@ -27,6 +27,10 @@ def from_json_filter(value):
 # Database setup
 DATABASE = 'ecoai_portal.db'
 
+# Admin credentials (in production, use environment variables)
+ADMIN_USERNAME = 'admin'
+ADMIN_PASSWORD = 'ecoai_admin_2024'
+
 def init_db():
     """Initialize the database with required tables"""
     conn = sqlite3.connect(DATABASE)
@@ -401,6 +405,135 @@ def docs():
 def download():
     """Download SDK page"""
     return render_template('download.html')
+
+# Admin routes
+@app.route('/admin')
+def admin_login():
+    """Admin login page"""
+    if 'admin_logged_in' in session:
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin_login.html')
+
+@app.route('/admin/auth', methods=['POST'])
+def admin_auth():
+    """Admin authentication"""
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        session['admin_logged_in'] = True
+        return redirect(url_for('admin_dashboard'))
+    else:
+        flash('Invalid admin credentials', 'error')
+        return redirect(url_for('admin_login'))
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    """Admin dashboard"""
+    if 'admin_logged_in' not in session:
+        return redirect(url_for('admin_login'))
+    
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    # Get statistics
+    c.execute('SELECT COUNT(*) FROM users')
+    total_users = c.fetchone()[0]
+    
+    c.execute('SELECT COUNT(*) FROM receipts')
+    total_receipts = c.fetchone()[0]
+    
+    c.execute('SELECT SUM(tokens_before - tokens_after) FROM receipts')
+    total_tokens_saved = c.fetchone()[0] or 0
+    
+    c.execute('SELECT SUM(co2_g_before - co2_g_after) FROM receipts')
+    total_co2_saved = c.fetchone()[0] or 0
+    
+    # Get recent users
+    c.execute('SELECT username, email, created_at FROM users ORDER BY created_at DESC LIMIT 10')
+    recent_users = c.fetchall()
+    
+    # Get recent receipts
+    c.execute('SELECT receipt_id, tokens_before, tokens_after, co2_g_before, co2_g_after, created_at FROM receipts ORDER BY created_at DESC LIMIT 10')
+    recent_receipts = c.fetchall()
+    
+    conn.close()
+    
+    return render_template('admin_dashboard.html', 
+                         total_users=total_users,
+                         total_receipts=total_receipts,
+                         total_tokens_saved=total_tokens_saved,
+                         total_co2_saved=total_co2_saved,
+                         recent_users=recent_users,
+                         recent_receipts=recent_receipts)
+
+@app.route('/admin/users')
+def admin_users():
+    """Admin users management"""
+    if 'admin_logged_in' not in session:
+        return redirect(url_for('admin_login'))
+    
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM users ORDER BY created_at DESC')
+    users = c.fetchall()
+    conn.close()
+    
+    return render_template('admin_users.html', users=users)
+
+@app.route('/admin/receipts')
+def admin_receipts():
+    """Admin receipts management"""
+    if 'admin_logged_in' not in session:
+        return redirect(url_for('admin_login'))
+    
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM receipts ORDER BY created_at DESC')
+    receipts = c.fetchall()
+    conn.close()
+    
+    return render_template('admin_receipts.html', receipts=receipts)
+
+@app.route('/admin/data/export')
+def admin_export_data():
+    """Export all data"""
+    if 'admin_logged_in' not in session:
+        return redirect(url_for('admin_login'))
+    
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    # Get all data
+    c.execute('SELECT * FROM users')
+    users = c.fetchall()
+    
+    c.execute('SELECT * FROM receipts')
+    receipts = c.fetchall()
+    
+    conn.close()
+    
+    # Create CSV data
+    csv_data = "Users Data\n"
+    csv_data += "ID,Username,Email,Created At\n"
+    for user in users:
+        csv_data += f"{user[0]},{user[1]},{user[2]},{user[5]}\n"
+    
+    csv_data += "\nReceipts Data\n"
+    csv_data += "Receipt ID,Tokens Before,Tokens After,CO2 Before,CO2 After,Quality Score,Created At\n"
+    for receipt in receipts:
+        csv_data += f"{receipt[0]},{receipt[1]},{receipt[2]},{receipt[3]},{receipt[4]},{receipt[5]},{receipt[6]}\n"
+    
+    return csv_data, 200, {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': 'attachment; filename=ecoai_admin_data.csv'
+    }
+
+@app.route('/admin/logout')
+def admin_logout():
+    """Admin logout"""
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('admin_login'))
 
 @app.route('/download/sdk')
 def download_sdk():
