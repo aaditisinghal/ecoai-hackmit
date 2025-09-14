@@ -5,23 +5,28 @@
     box-sizing: border-box;
 }
 
+/* Professional Typography */
+html {
+    scroll-behavior: smooth;
+}
+
 :root {
     --primary-green: #34D399;
     --primary-blue: #60A5FA;
-    --dark-bg: #0a0a0a;
-    --dark-surface: #111111;
-    --dark-surface-light: #1a1a1a;
+    --dark-bg: #0a1a0a;
+    --dark-surface: #111511;
+    --dark-surface-light: #1a1f1a;
     --text-primary: #ffffff;
     --text-secondary: #a1a1aa;
     --text-muted: #71717a;
-    --border-color: #27272a;
+    --border-color: rgba(52, 211, 153, 0.2);
     --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
-    --gradient-mesh: linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(96, 165, 250, 0.1));
+    --gradient-mesh: linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(0, 0, 0, 0.8), rgba(52, 211, 153, 0.05));
 }
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--dark-bg);
+    background: linear-gradient(135deg, #0a1a0a 0%, #000000 50%, #0a0a0a 100%);
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
@@ -40,9 +45,9 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(10, 10, 10, 0.9);
+    background: rgba(10, 26, 10, 0.9);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(52, 211, 153, 0.2);
 }
 
 /* Logo styling */
@@ -160,7 +165,7 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: var(--gradient-mesh);
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(0, 0, 0, 0.8), rgba(52, 211, 153, 0.05));
     animation: rotate 20s linear infinite;
 }
 
@@ -171,11 +176,13 @@ body {
     right: 0;
     bottom: 0;
     background-image: 
-        radial-gradient(2px 2px at 20px 30px, var(--primary-green), transparent),
-        radial-gradient(2px 2px at 40px 70px, var(--primary-blue), transparent),
-        radial-gradient(1px 1px at 90px 40px, var(--primary-green), transparent),
-        radial-gradient(1px 1px at 130px 80px, var(--primary-blue), transparent),
-        radial-gradient(2px 2px at 160px 30px, var(--primary-green), transparent);
+        radial-gradient(2px 2px at 20px 30px, rgba(52, 211, 153, 0.8), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(52, 211, 153, 0.6), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(52, 211, 153, 0.4), transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(52, 211, 153, 0.7), transparent),
+        radial-gradient(2px 2px at 160px 30px, rgba(52, 211, 153, 0.5), transparent),
+        radial-gradient(1px 1px at 200px 60px, rgba(52, 211, 153, 0.3), transparent),
+        radial-gradient(2px 2px at 250px 20px, rgba(52, 211, 153, 0.6), transparent);
     background-repeat: repeat;
     background-size: 200px 100px;
     animation: float 6s ease-in-out infinite;
@@ -748,4 +755,298 @@ body {
 
 .metric-card.animate {
     animation: countUp 0.6s ease-out forwards;
+}
+
+/* Professional Hero Enhancements */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.hero-subtitle-line {
+    font-size: 1.2rem;
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.hero-social-proof {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.social-proof-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.company-logos {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.company-logo {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.company-logo:hover {
+    opacity: 1;
+}
+
+/* Professional Button Styles */
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.btn-outline:hover {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    transform: translateY(-2px);
+}
+
+/* Section Badges */
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+/* Enhanced Feature Cards */
+.feature-content {
+    text-align: left;
+}
+
+.feature-metrics {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.metric {
+    text-align: center;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Enterprise Section */
+.enterprise {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.05), rgba(96, 165, 250, 0.05));
+    padding: 6rem 0;
+}
+
+.enterprise-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.enterprise-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.enterprise-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.enterprise-feature i {
+    color: var(--primary-green);
+    font-size: 1.1rem;
+}
+
+.enterprise-cta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.enterprise-stat {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+.enterprise-stat .stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary-green);
+    margin-bottom: 0.5rem;
+}
+
+.enterprise-stat .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Testimonials Section */
+.testimonials {
+    padding: 6rem 0;
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.testimonial-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(52, 211, 153, 0.1);
+}
+
+.quote-icon {
+    color: var(--primary-green);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.testimonial-content p {
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.author-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.author-title {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 1024px) {
+    .enterprise-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .enterprise-features {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .enterprise-cta {
+        flex-direction: column;
+    }
+    
+    .stat-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .company-logos {
+        gap: 1rem;
+    }
+    
+    .feature-metrics {
+        flex-direction: column;
+        gap: 1rem;
+    }
 }

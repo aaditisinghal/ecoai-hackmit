@@ -366,7 +366,37 @@ def dashboard():
         # Additional metrics
         cache_hit_rate = 0.85  # Mock cache hit rate
         avg_response_time = 1.2  # Mock response time
-        total_cost_saved = total_tokens_saved * 0.0001  # Mock cost calculation
+        
+        # Calculate real cost savings based on actual token usage and pricing
+        # OpenAI pricing (as of 2024): GPT-4o-mini: $0.00015/1K input tokens, $0.0006/1K output tokens
+        # GPT-4: $0.03/1K input tokens, $0.06/1K output tokens
+        total_cost_saved = 0.0
+        model_costs = {
+            'gpt-4o-mini': {'input': 0.00015, 'output': 0.0006},
+            'gpt-4': {'input': 0.03, 'output': 0.06},
+            'gpt-3.5-turbo': {'input': 0.0005, 'output': 0.0015},
+            'claude-3': {'input': 0.015, 'output': 0.075},
+            'gemini-pro': {'input': 0.00025, 'output': 0.00075}
+        }
+        
+        for receipt in receipts:
+            tokens_before = int(receipt[3])
+            tokens_after = int(receipt[4])
+            model = receipt[10] if receipt[10] else 'gpt-4o-mini'
+            
+            # Assume 70% input, 30% output token distribution
+            input_tokens_before = int(tokens_before * 0.7)
+            output_tokens_before = int(tokens_before * 0.3)
+            input_tokens_after = int(tokens_after * 0.7)
+            output_tokens_after = int(tokens_after * 0.3)
+            
+            # Get pricing for model
+            pricing = model_costs.get(model, model_costs['gpt-4o-mini'])
+            
+            # Calculate cost savings
+            cost_before = (input_tokens_before * pricing['input'] / 1000) + (output_tokens_before * pricing['output'] / 1000)
+            cost_after = (input_tokens_after * pricing['input'] / 1000) + (output_tokens_after * pricing['output'] / 1000)
+            total_cost_saved += cost_before - cost_after
         
         # Before/after averages
         avg_tokens_before = sum(int(receipt[3]) for receipt in receipts) / total_calls if total_calls > 0 else 0
@@ -379,6 +409,11 @@ def dashboard():
         chart_labels = []
         tokens_saved_data = []
         co2_saved_data = []
+        cost_saved_data = []
+        
+        # Model usage distribution data
+        model_usage_data = []
+        model_efficiency_data = {}
         
         for i in range(7):
             date = datetime.datetime.now() - datetime.timedelta(days=6-i)
@@ -387,6 +422,8 @@ def dashboard():
             # Calculate daily totals
             daily_tokens = 0
             daily_co2 = 0
+            daily_cost = 0.0
+            
             for receipt in receipts:
                 # Parse timestamp (column 13) - it's stored as string in SQLite
                 receipt_timestamp = receipt[13]
@@ -396,11 +433,69 @@ def dashboard():
                     receipt_date = datetime.datetime.fromtimestamp(receipt_timestamp / 1000)
                 
                 if receipt_date.date() == date.date():
-                    daily_tokens += int(receipt[3]) - int(receipt[4])
+                    tokens_before = int(receipt[3])
+                    tokens_after = int(receipt[4])
+                    model = receipt[10] if receipt[10] else 'gpt-4o-mini'
+                    
+                    daily_tokens += tokens_before - tokens_after
                     daily_co2 += float(receipt[7]) - float(receipt[8])
+                    
+                    # Calculate daily cost savings
+                    pricing = model_costs.get(model, model_costs['gpt-4o-mini'])
+                    input_tokens_before = int(tokens_before * 0.7)
+                    output_tokens_before = int(tokens_before * 0.3)
+                    input_tokens_after = int(tokens_after * 0.7)
+                    output_tokens_after = int(tokens_after * 0.3)
+                    
+                    cost_before = (input_tokens_before * pricing['input'] / 1000) + (output_tokens_before * pricing['output'] / 1000)
+                    cost_after = (input_tokens_after * pricing['input'] / 1000) + (output_tokens_after * pricing['output'] / 1000)
+                    daily_cost += cost_before - cost_after
+                    
+                    # Track model efficiency
+                    if model not in model_efficiency_data:
+                        model_efficiency_data[model] = {
+                            'total_calls': 0,
+                            'total_tokens_saved': 0,
+                            'total_cost_saved': 0.0,
+                            'total_co2_saved': 0.0
+                        }
+                    
+                    model_efficiency_data[model]['total_calls'] += 1
+                    model_efficiency_data[model]['total_tokens_saved'] += tokens_before - tokens_after
+                    model_efficiency_data[model]['total_cost_saved'] += cost_before - cost_after
+                    model_efficiency_data[model]['total_co2_saved'] += float(receipt[7]) - float(receipt[8])
             
             tokens_saved_data.append(daily_tokens)
             co2_saved_data.append(daily_co2)
+            # Scale cost data for better chart display (multiply by 1000 to show in cents)
+            cost_saved_data.append(daily_cost * 1000)
+        
+        # Calculate model efficiency metrics
+        for model, data in model_efficiency_data.items():
+            if data['total_calls'] > 0:
+                avg_tokens_saved = data['total_tokens_saved'] / data['total_calls']
+                avg_cost_saved = data['total_cost_saved'] / data['total_calls']
+                avg_co2_saved = data['total_co2_saved'] / data['total_calls']
+                # Scale cost for efficiency score calculation
+                efficiency_score = (avg_tokens_saved * 0.4) + (avg_cost_saved * 1000 * 0.3) + (avg_co2_saved * 1000 * 0.3)
+                
+                model_usage_data.append({
+                    'model': model,
+                    'calls': data['total_calls'],
+                    'percentage': (data['total_calls'] / total_calls) * 100,
+                    'avg_tokens_saved': avg_tokens_saved,
+                    'avg_cost_saved': avg_cost_saved * 1000,  # Scale to cents
+                    'avg_co2_saved': avg_co2_saved,
+                    'efficiency_score': efficiency_score
+                })
+        
+        # Sort models by usage
+        model_usage_data.sort(key=lambda x: x['calls'], reverse=True)
+        
+        # Debug logging
+        print(f"DEBUG: chart_labels = {chart_labels}")
+        print(f"DEBUG: cost_saved_data = {cost_saved_data}")
+        print(f"DEBUG: model_usage_data = {model_usage_data}")
         
         return render_template('enhanced_dashboard.html',
                              total_tokens_saved=total_tokens_saved,
@@ -419,7 +514,9 @@ def dashboard():
                              avg_co2_after=avg_co2_after,
                              chart_labels=chart_labels,
                              tokens_saved_data=tokens_saved_data,
-                             co2_saved_data=co2_saved_data)
+                             co2_saved_data=co2_saved_data,
+                             cost_saved_data=cost_saved_data,
+                             model_usage_data=model_usage_data)
                              
     except Exception as e:
         print(f"Error in dashboard: {e}")
@@ -440,7 +537,9 @@ def dashboard():
                              avg_co2_after=0,
                              chart_labels=[],
                              tokens_saved_data=[],
-                             co2_saved_data=[])
+                             co2_saved_data=[],
+                             cost_saved_data=[],
+                             model_usage_data=[])
 
 @app.route('/professional')
 def professional_dashboard():
