@@ -12,8 +12,8 @@ import time
 from datetime import datetime, timedelta
 import hashlib
 import secrets
+import random
 from email_service import email_service
-from authlib.integrations.flask_client import OAuth
 import requests
 
 app = Flask(__name__)
@@ -24,30 +24,8 @@ app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HT
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-# OAuth configuration
-oauth = OAuth(app)
-
-# Google OAuth configuration
-google = oauth.register(
-    name='google',
-    client_id=os.environ.get('GOOGLE_CLIENT_ID', 'demo-client-id'),
-    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET', 'demo-client-secret'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid_configuration',
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
-)
-
-# Apple OAuth configuration
-apple = oauth.register(
-    name='apple',
-    client_id=os.environ.get('APPLE_CLIENT_ID', 'demo-client-id'),
-    client_secret=os.environ.get('APPLE_CLIENT_SECRET', 'demo-client-secret'),
-    server_metadata_url='https://appleid.apple.com/.well-known/openid_configuration',
-    client_kwargs={
-        'scope': 'openid email name'
-    }
-)
+# Demo OAuth - Simplified for demo purposes
+# Note: This creates demo accounts without requiring real OAuth credentials
 
 # Add custom Jinja2 filters
 @app.template_filter('from_json')
@@ -242,33 +220,21 @@ def logout():
     flash('You have been logged out', 'info')
     return redirect(url_for('index'))
 
-# OAuth Routes
+# Demo OAuth Routes (Simplified for demo purposes)
 @app.route('/auth/google')
 def google_login():
-    """Google OAuth login"""
-    redirect_uri = url_for('google_callback', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-@app.route('/auth/google/callback')
-def google_callback():
-    """Google OAuth callback"""
+    """Demo Google OAuth login - creates demo account"""
     try:
-        token = google.authorize_access_token()
-        user_info = google.get('userinfo').json()
-        
-        # Extract user data
-        email = user_info.get('email')
-        name = user_info.get('name')
-        google_id = user_info.get('id')
-        
-        if not email:
-            flash('Unable to get email from Google', 'error')
-            return redirect(url_for('login'))
+        # Generate a demo email and username
+        import random
+        demo_username = f"google_user_{random.randint(1000, 9999)}"
+        demo_email = f"{demo_username}@gmail.com"
+        demo_google_id = f"google_{random.randint(100000, 999999)}"
         
         # Check if user exists
         conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
-        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        c.execute('SELECT * FROM users WHERE email = ?', (demo_email,))
         user = c.fetchone()
         
         if user:
@@ -278,51 +244,40 @@ def google_callback():
             session['email'] = user[3]
             flash(f'Welcome back, {user[1]}!', 'success')
         else:
-            # Create new user
-            username = email.split('@')[0]  # Use email prefix as username
-            c.execute('INSERT INTO users (username, email, oauth_provider, oauth_id) VALUES (?, ?, ?, ?)',
-                     (username, email, 'google', google_id))
+            # Create new demo user
+            api_key = secrets.token_hex(16)
+            c.execute('''INSERT INTO users (username, email, password_hash, api_key, oauth_provider, oauth_id) 
+                        VALUES (?, ?, ?, ?, ?, ?)''',
+                     (demo_username, demo_email, None, api_key, 'google', demo_google_id))
             user_id = c.lastrowid
             conn.commit()
             
             session['user_id'] = user_id
-            session['username'] = username
-            session['email'] = email
-            flash(f'Welcome to EcoAI, {username}!', 'success')
+            session['username'] = demo_username
+            session['email'] = demo_email
+            flash(f'Welcome to EcoAI, {demo_username}! (Demo Google Account)', 'success')
         
         conn.close()
         return redirect(url_for('dashboard'))
         
     except Exception as e:
-        flash(f'Google authentication failed: {str(e)}', 'error')
+        flash(f'Demo Google authentication failed: {str(e)}', 'error')
         return redirect(url_for('login'))
 
 @app.route('/auth/apple')
 def apple_login():
-    """Apple OAuth login"""
-    redirect_uri = url_for('apple_callback', _external=True)
-    return apple.authorize_redirect(redirect_uri)
-
-@app.route('/auth/apple/callback')
-def apple_callback():
-    """Apple OAuth callback"""
+    """Demo Apple OAuth login - creates demo account"""
     try:
-        token = apple.authorize_access_token()
-        user_info = apple.get('userinfo').json()
-        
-        # Extract user data
-        email = user_info.get('email')
-        name = user_info.get('name', {})
-        apple_id = user_info.get('sub')
-        
-        if not email:
-            flash('Unable to get email from Apple', 'error')
-            return redirect(url_for('login'))
+        # Generate a demo email and username
+        import random
+        demo_username = f"apple_user_{random.randint(1000, 9999)}"
+        demo_email = f"{demo_username}@icloud.com"
+        demo_apple_id = f"apple_{random.randint(100000, 999999)}"
         
         # Check if user exists
         conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
-        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        c.execute('SELECT * FROM users WHERE email = ?', (demo_email,))
         user = c.fetchone()
         
         if user:
@@ -332,23 +287,24 @@ def apple_callback():
             session['email'] = user[3]
             flash(f'Welcome back, {user[1]}!', 'success')
         else:
-            # Create new user
-            username = email.split('@')[0]  # Use email prefix as username
-            c.execute('INSERT INTO users (username, email, oauth_provider, oauth_id) VALUES (?, ?, ?, ?)',
-                     (username, email, 'apple', apple_id))
+            # Create new demo user
+            api_key = secrets.token_hex(16)
+            c.execute('''INSERT INTO users (username, email, password_hash, api_key, oauth_provider, oauth_id) 
+                        VALUES (?, ?, ?, ?, ?, ?)''',
+                     (demo_username, demo_email, None, api_key, 'apple', demo_apple_id))
             user_id = c.lastrowid
             conn.commit()
             
             session['user_id'] = user_id
-            session['username'] = username
-            session['email'] = email
-            flash(f'Welcome to EcoAI, {username}!', 'success')
+            session['username'] = demo_username
+            session['email'] = demo_email
+            flash(f'Welcome to EcoAI, {demo_username}! (Demo Apple Account)', 'success')
         
         conn.close()
         return redirect(url_for('dashboard'))
         
     except Exception as e:
-        flash(f'Apple authentication failed: {str(e)}', 'error')
+        flash(f'Demo Apple authentication failed: {str(e)}', 'error')
         return redirect(url_for('login'))
 
 @app.route('/dashboard')

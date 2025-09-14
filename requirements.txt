@@ -7,8 +7,3 @@ click==8.1.7
 blinker==1.6.2
 gunicorn==21.2.0
 requests==2.31.0
-Flask-OAuthlib==0.9.6
-google-auth==2.23.4
-google-auth-oauthlib==1.1.0
-google-auth-httplib2==0.1.1
-authlib==1.2.1

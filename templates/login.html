@@ -71,12 +71,12 @@
                 
                 <div class="oauth-buttons">
                     <a href="{{ url_for('google_login') }}" class="oauth-btn google-btn">
-                        <i class="fab fa-google"></i>
+                        <img src="{{ url_for('static', filename='google.png') }}" alt="Google" class="oauth-icon">
                         <span>Google</span>
                     </a>
                     
                     <a href="{{ url_for('apple_login') }}" class="oauth-btn apple-btn">
-                        <i class="fab fa-apple"></i>
+                        <img src="{{ url_for('static', filename='apple.png') }}" alt="Apple" class="oauth-icon">
                         <span>Apple</span>
                     </a>
                 </div>
@@ -160,6 +160,12 @@
         
         .apple-btn:hover {
             border-color: #000000;
+        }
+        
+        .oauth-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
         }
         
         .oauth-btn i {
