@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 import hashlib
 import secrets
 from email_service import email_service
+from authlib.integrations.flask_client import OAuth
+import requests
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
@@ -21,6 +23,31 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# OAuth configuration
+oauth = OAuth(app)
+
+# Google OAuth configuration
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get('GOOGLE_CLIENT_ID', 'demo-client-id'),
+    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET', 'demo-client-secret'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid_configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+
+# Apple OAuth configuration
+apple = oauth.register(
+    name='apple',
+    client_id=os.environ.get('APPLE_CLIENT_ID', 'demo-client-id'),
+    client_secret=os.environ.get('APPLE_CLIENT_SECRET', 'demo-client-secret'),
+    server_metadata_url='https://appleid.apple.com/.well-known/openid_configuration',
+    client_kwargs={
+        'scope': 'openid email name'
+    }
+)
 
 # Add custom Jinja2 filters
 @app.template_filter('from_json')
@@ -49,11 +76,24 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
+            password_hash TEXT,
             api_key TEXT UNIQUE NOT NULL,
+            oauth_provider TEXT,
+            oauth_id TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Add OAuth columns to existing users table if they don't exist
+    try:
+        c.execute('ALTER TABLE users ADD COLUMN oauth_provider TEXT')
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+    
+    try:
+        c.execute('ALTER TABLE users ADD COLUMN oauth_id TEXT')
+    except sqlite3.OperationalError:
+        pass  # Column already exists
     
     # Receipts table
     c.execute('''
@@ -201,6 +241,115 @@ def logout():
     session.clear()
     flash('You have been logged out', 'info')
     return redirect(url_for('index'))
+
+# OAuth Routes
+@app.route('/auth/google')
+def google_login():
+    """Google OAuth login"""
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/auth/google/callback')
+def google_callback():
+    """Google OAuth callback"""
+    try:
+        token = google.authorize_access_token()
+        user_info = google.get('userinfo').json()
+        
+        # Extract user data
+        email = user_info.get('email')
+        name = user_info.get('name')
+        google_id = user_info.get('id')
+        
+        if not email:
+            flash('Unable to get email from Google', 'error')
+            return redirect(url_for('login'))
+        
+        # Check if user exists
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+        
+        if user:
+            # User exists, log them in
+            session['user_id'] = user[0]
+            session['username'] = user[1]
+            session['email'] = user[3]
+            flash(f'Welcome back, {user[1]}!', 'success')
+        else:
+            # Create new user
+            username = email.split('@')[0]  # Use email prefix as username
+            c.execute('INSERT INTO users (username, email, oauth_provider, oauth_id) VALUES (?, ?, ?, ?)',
+                     (username, email, 'google', google_id))
+            user_id = c.lastrowid
+            conn.commit()
+            
+            session['user_id'] = user_id
+            session['username'] = username
+            session['email'] = email
+            flash(f'Welcome to EcoAI, {username}!', 'success')
+        
+        conn.close()
+        return redirect(url_for('dashboard'))
+        
+    except Exception as e:
+        flash(f'Google authentication failed: {str(e)}', 'error')
+        return redirect(url_for('login'))
+
+@app.route('/auth/apple')
+def apple_login():
+    """Apple OAuth login"""
+    redirect_uri = url_for('apple_callback', _external=True)
+    return apple.authorize_redirect(redirect_uri)
+
+@app.route('/auth/apple/callback')
+def apple_callback():
+    """Apple OAuth callback"""
+    try:
+        token = apple.authorize_access_token()
+        user_info = apple.get('userinfo').json()
+        
+        # Extract user data
+        email = user_info.get('email')
+        name = user_info.get('name', {})
+        apple_id = user_info.get('sub')
+        
+        if not email:
+            flash('Unable to get email from Apple', 'error')
+            return redirect(url_for('login'))
+        
+        # Check if user exists
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+        
+        if user:
+            # User exists, log them in
+            session['user_id'] = user[0]
+            session['username'] = user[1]
+            session['email'] = user[3]
+            flash(f'Welcome back, {user[1]}!', 'success')
+        else:
+            # Create new user
+            username = email.split('@')[0]  # Use email prefix as username
+            c.execute('INSERT INTO users (username, email, oauth_provider, oauth_id) VALUES (?, ?, ?, ?)',
+                     (username, email, 'apple', apple_id))
+            user_id = c.lastrowid
+            conn.commit()
+            
+            session['user_id'] = user_id
+            session['username'] = username
+            session['email'] = email
+            flash(f'Welcome to EcoAI, {username}!', 'success')
+        
+        conn.close()
+        return redirect(url_for('dashboard'))
+        
+    except Exception as e:
+        flash(f'Apple authentication failed: {str(e)}', 'error')
+        return redirect(url_for('login'))
 
 @app.route('/dashboard')
 def dashboard():
