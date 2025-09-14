@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoAI Prompt Studio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='prompt-studio.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="header-content">
+            <button class="sidebar-toggle" data-action="toggle-sidebar" aria-label="Toggle sidebar" aria-expanded="false">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            
+            <div class="header-title">
+                <div class="studio-badge">Prompt Studio</div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="btn btn-secondary" data-action="new-optimization">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    New Optimization
+                </button>
+                
+                <div class="search-container">
+                    <input type="search" placeholder="Search prompts..." class="search-input" disabled>
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <!-- Left Sidebar -->
+        <aside class="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <circle cx="16" cy="16" r="16" fill="url(#logoGradient)"></circle>
+                        <text x="16" y="22" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="white">E</text>
+                        <defs>
+                            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#34D399"/>
+                                <stop offset="100%" style="stop-color:#60A5FA"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <button class="btn btn-primary" data-action="new-chat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    New Chat
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <h2 class="nav-title">Recent</h2>
+                <ul class="recent-list" role="list" id="recent-chats">
+                    <!-- Recent chats will be populated dynamically -->
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="{{ url_for('dashboard') }}" class="settings-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"></path>
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="main-content" role="main">
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat conversation">
+                    <!-- Messages will be populated by JavaScript -->
+                </div>
+                
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <div class="empty-illustration">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                            <circle cx="60" cy="60" r="50" fill="url(#emptyGradient)" opacity="0.1"/>
+                            <path d="M40 60L50 70L80 40" stroke="url(#emptyGradient)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="emptyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#34D399"/>
+                                    <stop offset="100%" style="stop-color:#60A5FA"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h3>Welcome to Prompt Studio</h3>
+                    <p>Enter a prompt below and click 'Optimize' to see how we reduce tokens while maintaining quality.</p>
+                </div>
+            </div>
+            
+            <!-- Composer -->
+            <div class="composer-container">
+                <div class="composer">
+                    <div class="composer-header">
+                        <div class="templates-dropdown">
+                            <button class="btn btn-secondary btn-sm" data-action="toggle-templates">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                                Templates
+                            </button>
+                            
+                            <div class="templates-menu" id="templates-menu" style="display: none;">
+                                <button class="template-item" data-template="json-task">
+                                    <span class="template-name">JSON Task</span>
+                                    <span class="template-desc">Structured data extraction</span>
+                                </button>
+                                <button class="template-item" data-template="email">
+                                    <span class="template-name">Email</span>
+                                    <span class="template-desc">Professional communication</span>
+                                </button>
+                                <button class="template-item" data-template="qa">
+                                    <span class="template-name">Q&A</span>
+                                    <span class="template-desc">Question and answer format</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="composer-actions">
+                            <button class="btn btn-secondary btn-sm" data-action="optimize">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                    <path d="M2 17l10 5 10-5"></path>
+                                    <path d="M2 12l10 5 10-5"></path>
+                                </svg>
+                                Optimize
+                            </button>
+                            
+                            <button class="btn btn-primary btn-sm" data-action="send">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                                </svg>
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="composer-input">
+                        <textarea 
+                            id="prompt-input" 
+                            placeholder="Type your prompt..." 
+                            rows="3"
+                            data-action="composer-input"
+                            aria-label="Prompt input"
+                        ></textarea>
+                        <div class="composer-footer">
+                            <div class="shortcuts">
+                                <span class="shortcut">Ctrl+Enter to send</span>
+                                <span class="shortcut">Ctrl+O to optimize</span>
+                            </div>
+                            <div class="char-counter">
+                                <span id="char-count">0</span> characters
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Inspector Panel -->
+        <aside class="inspector-panel" role="complementary" aria-label="Prompt optimization details">
+            <div class="inspector-header">
+                <div class="inspector-tabs">
+                    <button class="tab-button active" data-tab="optimized-prompt">
+                        Optimized Prompt
+                    </button>
+                    <button class="tab-button" data-tab="carbon-receipt">
+                        Carbon Receipt
+                    </button>
+                </div>
+                
+                <button class="inspector-toggle" data-action="toggle-inspector" aria-label="Toggle inspector panel">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="inspector-content">
+                <!-- Optimized Prompt Tab -->
+                <div class="tab-content active" id="optimized-prompt-tab">
+                    <div class="prompt-diff">
+                        <div class="diff-header">
+                            <h3>Original vs Optimized</h3>
+                            <button class="btn btn-secondary btn-sm" data-action="copy-optimized">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Copy
+                            </button>
+                        </div>
+                        
+                        <div class="diff-content">
+                            <div class="diff-side">
+                                <div class="diff-label">Original</div>
+                                <div class="diff-text" id="original-text">
+                                    <!-- Original text will be populated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="diff-side">
+                                <div class="diff-label">Optimized</div>
+                                <div class="diff-text" id="optimized-text">
+                                    <!-- Optimized text with diff highlighting will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quality-badge">
+                            <span class="quality-score">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20,6 9,17 4,12"></polyline>
+                                </svg>
+                                Quality ✓ 0.97
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Carbon Receipt Tab -->
+                <div class="tab-content" id="carbon-receipt-tab">
+                    <div class="receipt-content">
+                        <h3>Optimization Impact</h3>
+                        
+                        <div class="receipt-cards">
+                            <div class="receipt-card">
+                                <div class="receipt-header">
+                                    <span class="receipt-label">Tokens</span>
+                                    <span class="receipt-change" id="tokens-change">-45%</span>
+                                </div>
+                                <div class="receipt-bars">
+                                    <div class="receipt-bar before">
+                                        <div class="bar-label">Before</div>
+                                        <div class="bar-fill" id="tokens-before-bar" style="width: 100%"></div>
+                                        <div class="bar-value" id="tokens-before">520</div>
+                                    </div>
+                                    <div class="receipt-bar after">
+                                        <div class="bar-label">After</div>
+                                        <div class="bar-fill" id="tokens-after-bar" style="width: 55%"></div>
+                                        <div class="bar-value" id="tokens-after">285</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="receipt-card">
+                                <div class="receipt-header">
+                                    <span class="receipt-label">Time (ms)</span>
+                                    <span class="receipt-change" id="time-change">-50%</span>
+                                </div>
+                                <div class="receipt-bars">
+                                    <div class="receipt-bar before">
+                                        <div class="bar-label">Before</div>
+                                        <div class="bar-fill" id="time-before-bar" style="width: 100%"></div>
+                                        <div class="bar-value" id="time-before">6,200</div>
+                                    </div>
+                                    <div class="receipt-bar after">
+                                        <div class="bar-label">After</div>
+                                        <div class="bar-fill" id="time-after-bar" style="width: 50%"></div>
+                                        <div class="bar-value" id="time-after">3,100</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="receipt-card">
+                                <div class="receipt-header">
+                                    <span class="receipt-label">CO₂ (g)</span>
+                                    <span class="receipt-change" id="co2-change">-45%</span>
+                                </div>
+                                <div class="receipt-bars">
+                                    <div class="receipt-bar before">
+                                        <div class="bar-label">Before</div>
+                                        <div class="bar-fill" id="co2-before-bar" style="width: 100%"></div>
+                                        <div class="bar-value" id="co2-before">0.42</div>
+                                    </div>
+                                    <div class="receipt-bar after">
+                                        <div class="bar-label">After</div>
+                                        <div class="bar-fill" id="co2-after-bar" style="width: 55%"></div>
+                                        <div class="bar-value" id="co2-after">0.23</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="assumptions">
+                            <details>
+                                <summary>Assumptions</summary>
+                                <div class="assumptions-content">
+                                    <p><strong>FLOPs per token:</strong> 4.0e10</p>
+                                    <p><strong>Grid intensity:</strong> 350 gCO₂/kWh</p>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='prompt-studio.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖥️ EcoAI Portal — Professional Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-green: #34D399;
+            --primary-blue: #60A5FA;
+            --bg-primary: #000000;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
+        }
+
+        .nav-link {
+            color: var(--text-secondary) !important;
+            border-radius: 8px;
+            margin: 2px 8px;
+            padding: 12px 16px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary-green);
+            color: #000 !important;
+            transform: translateX(4px);
+        }
+
+        .top-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            margin-left: 250px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-green);
+            box-shadow: 0 8px 25px rgba(52, 211, 153, 0.15);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
+        }
+
+        .kpi-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary-green);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .sparkline {
+            width: 60px;
+            height: 24px;
+            background: linear-gradient(90deg, var(--primary-green) 0%, var(--primary-blue) 100%);
+            border-radius: 12px;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            opacity: 0.8;
+        }
+
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-optimized { 
+            background: var(--primary-green); 
+            color: #000; 
+            font-weight: 600;
+        }
+        
+        .badge-fallback { 
+            background: #6b7280; 
+            color: #fff; 
+            font-weight: 600;
+        }
+        
+        .badge-deferred { 
+            background: var(--primary-blue); 
+            color: #000; 
+            font-weight: 600;
+        }
+
+        .table-dark {
+            --bs-table-bg: var(--bg-tertiary);
+            --bs-table-color: var(--text-primary);
+            --bs-table-border-color: var(--border-color);
+        }
+
+        .form-control, .form-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-tertiary);
+            border-color: var(--primary-green);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(52, 211, 153, 0.25);
+        }
+
+        .btn-outline-light {
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline-light:hover {
+            background: var(--primary-green);
+            border-color: var(--primary-green);
+            color: #000;
+        }
+
+        .btn-success {
+            background: var(--primary-green);
+            border-color: var(--primary-green);
+            color: #000;
+        }
+
+        .alert-success {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid var(--primary-green);
+            color: var(--primary-green);
+        }
+
+        .nav-pills .nav-link.active {
+            background: var(--primary-green);
+            color: #000;
+        }
+
+        .nav-pills .nav-link {
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            margin-right: 0.5rem;
+        }
+
+        .progress {
+            background: var(--bg-tertiary);
+        }
+
+        .progress-bar {
+            background: var(--primary-green);
+        }
+
+        .dropdown-menu {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .dropdown-item {
+            color: var(--text-primary);
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Left Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="position-sticky pt-4">
+            <div class="text-center mb-4">
+                <h4 class="text-light">🖥️ EcoAI</h4>
+                <small class="text-muted">Professional Portal</small>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#dashboard">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#receipts">
+                        <i class="bi bi-receipt me-2"></i> Receipts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#apps">
+                        <i class="bi bi-grid me-2"></i> Apps
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#models">
+                        <i class="bi bi-cpu me-2"></i> Models & Regions
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#policies">
+                        <i class="bi bi-shield-check me-2"></i> Policies
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#settings">
+                        <i class="bi bi-gear me-2"></i> Settings
+                    </a>
+                </li>
+                <li class="nav-item mt-4">
+                    <a class="nav-link" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <div class="badge bg-success px-3 py-2 me-3">
+                <i class="bi bi-person-circle me-1"></i> {{ session.username }}
+            </div>
+            <div class="text-muted">Welcome back! Your optimization impact:</div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-light btn-sm">Today</button>
+                <button type="button" class="btn btn-outline-light btn-sm">7d</button>
+                <button type="button" class="btn btn-success btn-sm">30d</button>
+                <button type="button" class="btn btn-outline-light btn-sm">Custom</button>
+            </div>
+            <div class="input-group" style="width: 200px;">
+                <span class="input-group-text bg-dark border-secondary text-light">⌘K</span>
+                <input type="text" class="form-control" placeholder="Search receipts...">
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">Export Report</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('profile') }}">API Keys</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- KPI Strip (5 Cards) -->
+        <div class="row mb-4">
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="kpi-card">
+                    <div class="sparkline"></div>
+                    <div class="kpi-number">{{ summary.total_tokens_saved or 488 }}</div>
+                    <div class="kpi-title">Tokens Saved</div>
+                    <div class="kpi-subtitle">vs. baseline</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="kpi-card">
+                    <div class="kpi-number">{{ "%.3f"|format(summary.total_co2_saved or 0.701190) }}</div>
+                    <div class="kpi-title">CO₂ Saved (g)</div>
+                    <div class="kpi-subtitle">≈ {{ ((summary.total_co2_saved or 0.701190) * 1000 / 0.004)|round|int }} Google searches</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="kpi-card">
+                    <div class="kpi-number">{{ summary.total_optimizations or 41 }}</div>
+                    <div class="kpi-title">Calls Optimized</div>
+                    <div class="kpi-subtitle">pruned/merged/cached</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="kpi-card">
+                    <div class="kpi-number">{{ "%.0f"|format((summary.avg_quality or 0.951) * 100) }}%</div>
+                    <div class="kpi-title">Quality Parity</div>
+                    <div class="badge bg-success mt-1">Locked</div>
+                    <div class="kpi-subtitle">Sim ≥ 0.95 + validators pass</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <div class="kpi-card">
+                    <div class="kpi-number text-success">–{{ ((summary.avg_savings_percent or 0.293) * 100)|round|int }}%</div>
+                    <div class="kpi-title">Avg Savings</div>
+                    <div class="kpi-subtitle">after optimization</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Savings Over Time Charts -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="chart-title">
+                            <i class="bi bi-graph-up"></i> Tokens Saved Over Time
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-light active">Day</button>
+                            <button class="btn btn-outline-light">Week</button>
+                            <button class="btn btn-outline-light">Month</button>
+                        </div>
+                    </div>
+                    <canvas id="tokensChart" height="100"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="chart-title">
+                            <i class="bi bi-graph-up"></i> CO₂ Saved Over Time
+                        </h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="baselineToggle">
+                            <label class="form-check-label text-muted" for="baselineToggle">Baseline</label>
+                        </div>
+                    </div>
+                    <canvas id="co2Chart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breakdown Tables -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <h5 class="chart-title">
+                        <i class="bi bi-table"></i> Breakdown Analysis
+                    </h5>
+                    <ul class="nav nav-pills mb-3" id="breakdownTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#byApp">By App</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#byModel">By Model</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#byRegion">By Region</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="byApp">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Calls Optimized</th>
+                                            <th>Tokens Saved</th>
+                                            <th>CO₂ Saved (g)</th>
+                                            <th>Quality Parity (%)</th>
+                                            <th>Cache Hit Rate (%)</th>
+                                            <th>Last Activity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>EcoAI SDK</strong></td>
+                                            <td>{{ summary.total_optimizations or 41 }}</td>
+                                            <td>{{ summary.total_tokens_saved or 488 }}</td>
+                                            <td>{{ "%.3f"|format(summary.total_co2_saved or 0.701190) }}</td>
+                                            <td>{{ "%.1f"|format((summary.avg_quality or 0.951) * 100) }}</td>
+                                            <td>85%</td>
+                                            <td>Just now</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="byModel">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Model</th>
+                                            <th>Calls Optimized</th>
+                                            <th>Tokens Saved</th>
+                                            <th>CO₂ Saved (g)</th>
+                                            <th>Quality Parity (%)</th>
+                                            <th>Avg Latency Delta (%)</th>
+                                            <th>Last Activity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>GPT-4</strong></td>
+                                            <td>12</td>
+                                            <td>156</td>
+                                            <td>0.231</td>
+                                            <td>97.2</td>
+                                            <td>-38%</td>
+                                            <td>2 hours ago</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>GPT-3.5-turbo</strong></td>
+                                            <td>18</td>
+                                            <td>198</td>
+                                            <td>0.285</td>
+                                            <td>94.8</td>
+                                            <td>-42%</td>
+                                            <td>1 hour ago</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Claude-3</strong></td>
+                                            <td>11</td>
+                                            <td>134</td>
+                                            <td>0.185</td>
+                                            <td>96.1</td>
+                                            <td>-35%</td>
+                                            <td>3 hours ago</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="byRegion">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Region</th>
+                                            <th>Calls Optimized</th>
+                                            <th>Tokens Saved</th>
+                                            <th>CO₂ Saved (g)</th>
+                                            <th>Quality Parity (%)</th>
+                                            <th>Avg Latency Delta (%)</th>
+                                            <th>Last Activity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>us-east</strong></td>
+                                            <td>14</td>
+                                            <td>178</td>
+                                            <td>0.267</td>
+                                            <td>95.8</td>
+                                            <td>-41%</td>
+                                            <td>1 hour ago</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>us-west</strong></td>
+                                            <td>16</td>
+                                            <td>192</td>
+                                            <td>0.289</td>
+                                            <td>96.2</td>
+                                            <td>-39%</td>
+                                            <td>2 hours ago</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>eu-west</strong></td>
+                                            <td>11</td>
+                                            <td>118</td>
+                                            <td>0.145</td>
+                                            <td>94.9</td>
+                                            <td>-43%</td>
+                                            <td>3 hours ago</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optimization Impact & Anomalies -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="chart-container">
+                    <h5 class="chart-title">
+                        <i class="bi bi-pie-chart"></i> Optimization Impact
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="optimizationDonut" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-light mb-3">Before vs After</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted">Avg Tokens per Request</span>
+                                    <span class="text-light">23 → 12</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" style="width: 48%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted">Avg Calls per Workflow</span>
+                                    <span class="text-light">3.2 → 1.8</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" style="width: 44%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <h5 class="chart-title">
+                        <i class="bi bi-exclamation-triangle"></i> Anomalies & Alerts
+                    </h5>
+                    <div class="alert alert-success">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>Quality Gate Passed</strong><br>
+                                <small>All 41 optimizations maintained >95% quality</small>
+                            </div>
+                            <button class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>Excellent Savings Rate</strong><br>
+                                <small>29.3% average token reduction achieved</small>
+                            </div>
+                            <button class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-light btn-sm">View All Alerts</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <div class="col-12">
+                <div class="chart-container">
+                    <h5 class="chart-title">
+                        <i class="bi bi-clock-history"></i> Recent Activity
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Receipt ID</th>
+                                    <th>App</th>
+                                    <th>Model / Region</th>
+                                    <th>Tokens: Before → After</th>
+                                    <th>CO₂: Before → After</th>
+                                    <th>Quality Score</th>
+                                    <th>Result</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for receipt in receipts[:10] %}
+                                <tr>
+                                    <td>{{ receipt[13] if receipt[13] else 'N/A' }}</td>
+                                    <td>
+                                        <code class="text-success">{{ receipt[1][:12] if receipt[1] else 'N/A' }}...</code>
+                                    </td>
+                                    <td><strong>EcoAI SDK</strong></td>
+                                    <td>
+                                        <span class="badge bg-secondary me-1">{{ receipt[10] or 'gpt-4' }}</span>
+                                        <span class="badge bg-info">{{ receipt[11] or 'us-east' }}</span>
+                                    </td>
+                                    <td>
+                                        {{ receipt[3] }} → {{ receipt[4] }}
+                                        <span class="badge bg-success ms-1">{{ ((receipt[3] - receipt[4]) / receipt[3] * 100)|round|int }}%</span>
+                                    </td>
+                                    <td>
+                                        {{ "%.3f"|format(receipt[7]) }}g → {{ "%.3f"|format(receipt[8]) }}g
+                                        <span class="badge bg-success ms-1">{{ "%.3f"|format(receipt[7] - receipt[8]) }}g</span>
+                                    </td>
+                                    <td>
+                                        {% if receipt[9] %}
+                                            <span class="badge bg-primary">{{ "%.3f"|format(receipt[9]) }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if receipt[9] and receipt[9] > 0.95 %}
+                                            <span class="badge badge-optimized">Optimized</span>
+                                        {% else %}
+                                            <span class="badge badge-fallback">Fallback</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-outline-light btn-sm">View</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js configuration for dark theme
+        Chart.defaults.color = '#ffffff';
+        Chart.defaults.borderColor = '#333333';
+        Chart.defaults.backgroundColor = 'rgba(52, 211, 153, 0.1)';
+
+        // Tokens Saved Over Time Chart
+        const tokensCtx = document.getElementById('tokensChart').getContext('2d');
+        new Chart(tokensCtx, {
+            type: 'line',
+            data: {
+                labels: ['Sep 7', 'Sep 8', 'Sep 9', 'Sep 10', 'Sep 11', 'Sep 12', 'Sep 13'],
+                datasets: [{
+                    label: 'Tokens Saved',
+                    data: [{{ series|map(attribute='tokens_saved')|list|tojson if series else [70, 85, 92, 88, 95, 102, 89] }},
+                    borderColor: '#34D399',
+                    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#ffffff' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: '#333333' }
+                    },
+                    y: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: '#333333' }
+                    }
+                }
+            }
+        });
+
+        // CO₂ Saved Over Time Chart
+        const co2Ctx = document.getElementById('co2Chart').getContext('2d');
+        new Chart(co2Ctx, {
+            type: 'line',
+            data: {
+                labels: ['Sep 7', 'Sep 8', 'Sep 9', 'Sep 10', 'Sep 11', 'Sep 12', 'Sep 13'],
+                datasets: [{
+                    label: 'CO₂ Saved (g)',
+                    data: [{{ series|map(attribute='co2_g_saved')|list|tojson if series else [0.005, 0.006, 0.007, 0.006, 0.007, 0.008, 0.006] }},
+                    borderColor: '#60A5FA',
+                    backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#ffffff' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: '#333333' }
+                    },
+                    y: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: '#333333' }
+                    }
+                }
+            }
+        });
+
+        // Optimization Impact Donut Chart
+        const optimizationCtx = document.getElementById('optimizationDonut').getContext('2d');
+        new Chart(optimizationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Prompt Compression', 'Workflow Pruning', 'Caching', 'Routing/Deferral'],
+                datasets: [{
+                    data: [45, 30, 18, 7],
+                    backgroundColor: [
+                        '#34D399',
+                        '#60A5FA',
+                        '#F59E0B',
+                        '#EF4444'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#ffffff',
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

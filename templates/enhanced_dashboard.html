@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖥️ EcoAI Portal — Enhanced Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <style>
+        :root {
+            --primary-green: #34D399;
+            --primary-blue: #60A5FA;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border-color: #27272a;
+            --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+            --gradient-success: linear-gradient(135deg, #10B981, #059669);
+            --gradient-warning: linear-gradient(135deg, #F59E0B, #D97706);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient-primary);
+            color: white !important;
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(52, 211, 153, 0.3);
+        }
+
+        .nav-link-studio {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+            color: white !important;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link-studio:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+            border-color: var(--primary-green);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Header */
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* KPI Strip */
+        .kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-green);
+            box-shadow: 0 20px 40px rgba(52, 211, 153, 0.1);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .kpi-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-green);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .kpi-change.positive {
+            color: var(--primary-green);
+        }
+
+        .kpi-change.negative {
+            color: var(--accent-red);
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Comparison Cards */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .comparison-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            border-color: var(--primary-green);
+            transform: translateY(-3px);
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .comparison-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-before {
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .metric-after {
+            color: var(--primary-green);
+            font-weight: 700;
+        }
+
+        .improvement {
+            background: rgba(52, 211, 153, 0.1);
+            color: var(--primary-green);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .table {
+            color: var(--text-primary);
+            margin-bottom: 0;
+        }
+
+        .table th {
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            border-color: var(--border-color);
+            padding: 1rem 0.75rem;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 211, 153, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.success {
+            background: rgba(52, 211, 153, 0.1);
+            color: var(--primary-green);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .status-badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-orange);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+                margin-top: 70px;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-strip {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Chart containers */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        /* Search bar */
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1rem 1rem 3rem;
+            color: var(--text-primary);
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Grab Your Points Section */
+        .points-section {
+            margin-bottom: 3rem;
+        }
+
+        .points-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .points-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .points-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .points-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .points-form {
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1);
+        }
+
+        .send-btn {
+            padding: 1rem 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 211, 153, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .email-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .email-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: block;
+        }
+
+        .email-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            display: block;
+        }
+
+        .points-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-item i {
+            color: var(--primary-green);
+            font-size: 1.2rem;
+        }
+
+        .feature-item span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Studio Features */
+        .studio-features {
+            margin: 1.5rem 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .studio-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .studio-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3);
+        }
+
+        .studio-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 211, 153, 0.4);
+        }
+
+        .studio-info {
+            text-align: center;
+        }
+
+        .studio-info small {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .studio-info i {
+            color: var(--primary-blue);
+            margin-right: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('prompt_studio') }}" target="_blank" class="nav-link-studio">Prompt Studio</a>
+                <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header fade-in-up">
+            <h1 class="dashboard-title">🖥️ Professional Dashboard</h1>
+            <p class="dashboard-subtitle">Welcome back! Your optimization impact:</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container fade-in-up">
+            <div class="position-relative">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="⌘K Search receipts..." id="searchInput">
+            </div>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="kpi-strip fade-in-up">
+            <div class="kpi-card">
+                <div class="kpi-number">{{ total_tokens_saved }}</div>
+                <div class="kpi-label">Tokens Saved</div>
+                <div class="kpi-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    vs. baseline
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number">{{ "%.3f"|format(total_co2_saved) }}</div>
+                <div class="kpi-label">CO₂ Saved (g)</div>
+                <div class="kpi-change positive">
+                    <i class="fas fa-leaf"></i>
+                    ≈ {{ "{:,.0f}".format(total_co2_saved * 250000) }} Google searches
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number">{{ total_calls }}</div>
+                <div class="kpi-label">Calls Optimized</div>
+                <div class="kpi-change positive">
+                    <i class="fas fa-cog"></i>
+                    pruned/merged/cached
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number">{{ "{:.0f}%".format(avg_quality_score * 100) }}</div>
+                <div class="kpi-label">Quality Parity</div>
+                <div class="kpi-change positive">
+                    <i class="fas fa-lock"></i>
+                    Locked
+                </div>
+            </div>
+        </div>
+
+        <!-- Grab Your Points Section -->
+        <div class="points-section fade-in-up">
+            <div class="points-card">
+                <div class="points-header">
+                    <h2>🎯 Grab Your Points</h2>
+                    <p>Get your complete impact report delivered to your inbox!</p>
+                </div>
+                <div class="points-form">
+                    <form id="emailForm" onsubmit="sendStatsEmail(event)">
+                        <div class="input-group">
+                            <input type="email" id="userEmail" placeholder="Enter your email address" required>
+                            <button type="submit" class="send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Send My Stats
+                            </button>
+                        </div>
+                    </form>
+                    <div id="emailStatus" class="email-status"></div>
+                </div>
+                <div class="points-features">
+                    <div class="feature-item">
+                        <i class="fas fa-leaf"></i>
+                        <span>Complete CO₂ savings breakdown</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Detailed optimization statistics</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Professional email report</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prompt Studio Section -->
+        <div class="points-section fade-in-up">
+            <div class="points-card">
+                <div class="points-header">
+                    <h2>🚀 EcoAI Prompt Studio</h2>
+                    <p>Interactive ChatGPT-style interface for real-time prompt optimization</p>
+                </div>
+                <div class="studio-features">
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-edit"></i>
+                            <span>Real-time prompt optimization</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-brain"></i>
+                            <span>AI-powered suggestions</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-leaf"></i>
+                            <span>Carbon footprint tracking</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-copy"></i>
+                            <span>One-click copy optimized prompts</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="studio-actions">
+                    <button class="studio-btn" onclick="window.open('{{ url_for('prompt_studio') }}', '_blank')">
+                        <i class="fas fa-external-link-alt"></i>
+                        Open Prompt Studio
+                    </button>
+                    <div class="studio-info">
+                        <small><i class="fas fa-info-circle"></i> Login required - OpenAI API key pre-configured</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid fade-in-up">
+            <!-- Tokens Saved Over Time -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Tokens Saved Over Time</h3>
+                        <p class="chart-subtitle">Daily optimization impact</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tokensChart"></canvas>
+                </div>
+            </div>
+
+            <!-- CO2 Saved Over Time -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">CO₂ Saved Over Time</h3>
+                        <p class="chart-subtitle">Environmental impact tracking</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="co2Chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Grid -->
+        <div class="comparison-grid fade-in-up">
+            <!-- Before vs After Comparison -->
+            <div class="comparison-card">
+                <div class="comparison-header">
+                    <h3 class="comparison-title">Before vs After</h3>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Avg Tokens per Request</span>
+                    <div>
+                        <span class="metric-before">{{ avg_tokens_before }}</span>
+                        <span class="mx-2">→</span>
+                        <span class="metric-after">{{ avg_tokens_after }}</span>
+                        <span class="improvement">{{ "{:.0f}%".format((1 - avg_tokens_after/avg_tokens_before) * 100) if avg_tokens_before > 0 else "0%" }} less</span>
+                    </div>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Avg CO₂ per Request</span>
+                    <div>
+                        <span class="metric-before">{{ "%.3fg".format(avg_co2_before) }}</span>
+                        <span class="mx-2">→</span>
+                        <span class="metric-after">{{ "%.3fg".format(avg_co2_after) }}</span>
+                        <span class="improvement">{{ "{:.0f}%".format((1 - avg_co2_after/avg_co2_before) * 100) if avg_co2_before > 0 else "0%" }} less</span>
+                    </div>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Quality Score</span>
+                    <div>
+                        <span class="metric-before">{{ "{:.1%}".format(0.85) }}</span>
+                        <span class="mx-2">→</span>
+                        <span class="metric-after">{{ "{:.1%}".format(avg_quality_score) }}</span>
+                        <span class="improvement">{{ "{:.0f}%".format((avg_quality_score - 0.85) * 100) }} better</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Impact -->
+            <div class="comparison-card">
+                <div class="comparison-header">
+                    <h3 class="comparison-title">Optimization Impact</h3>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Cache Hit Rate</span>
+                    <span class="metric-value">{{ "{:.0f}%".format(cache_hit_rate * 100) }}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Avg Response Time</span>
+                    <span class="metric-value">{{ "{:.1f}s".format(avg_response_time) }}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Cost Savings</span>
+                    <span class="metric-value">${{ "{:.2f}".format(total_cost_saved) }}</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Environmental Impact</span>
+                    <span class="metric-value">{{ "{:.0f}kg".format(total_co2_saved / 1000) }} CO₂</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breakdown Analysis -->
+        <div class="table-container fade-in-up">
+            <h3 class="table-title">Breakdown Analysis</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="text-secondary mb-3">By App</h5>
+                    <div class="metric-row">
+                        <span class="metric-label">EcoAI SDK</span>
+                        <span class="metric-value">{{ total_calls }} calls</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-secondary mb-3">By Model</h5>
+                    <div class="metric-row">
+                        <span class="metric-label">GPT-4</span>
+                        <span class="metric-value">{{ "{:.0f}%".format(model_breakdown.get('gpt-4', 0) * 100) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Claude-3</span>
+                        <span class="metric-value">{{ "{:.0f}%".format(model_breakdown.get('claude-3', 0) * 100) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">GPT-3.5</span>
+                        <span class="metric-value">{{ "{:.0f}%".format(model_breakdown.get('gpt-3.5-turbo', 0) * 100) }}</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-secondary mb-3">By Region</h5>
+                    <div class="metric-row">
+                        <span class="metric-label">US East</span>
+                        <span class="metric-value">{{ "{:.0f}%".format(region_breakdown.get('us-east', 0) * 100) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">US West</span>
+                        <span class="metric-value">{{ "{:.0f}%".format(region_breakdown.get('us-west', 0) * 100) }}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">EU West</span>
+                        <span class="metric-value">{{ "{:.0f}%".format(region_breakdown.get('eu-west', 0) * 100) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="table-container fade-in-up">
+            <h3 class="table-title">Recent Activity</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Receipt ID</th>
+                            <th>App</th>
+                            <th>Model / Region</th>
+                            <th>Tokens: Before → After</th>
+                            <th>CO₂: Before → After</th>
+                            <th>Quality Score</th>
+                            <th>Result</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for receipt in recent_receipts[:10] %}
+                        <tr>
+                            <td>{{ receipt[6] }}</td>
+                            <td><code class="text-success">{{ receipt[1][:12] }}...</code></td>
+                            <td>EcoAI SDK</td>
+                            <td>{{ receipt[12] if receipt[12] else 'gpt-4' }} {{ receipt[13] if receipt[13] else 'us-east' }}</td>
+                            <td>
+                                <span class="metric-before">{{ receipt[3] }}</span>
+                                <span class="mx-1">→</span>
+                                <span class="metric-after">{{ receipt[4] }}</span>
+                                <span class="improvement">{{ "{:.0f}%".format((1 - receipt[4]/receipt[3]) * 100) }}</span>
+                            </td>
+                            <td>
+                                <span class="metric-before">{{ "%.3fg".format(receipt[7]) }}</span>
+                                <span class="mx-1">→</span>
+                                <span class="metric-after">{{ "%.3fg".format(receipt[8]) }}</span>
+                                <span class="improvement">{{ "%.3fg".format(receipt[7] - receipt[8]) }}</span>
+                            </td>
+                            <td>{{ "%.3f".format(receipt[10]) if receipt[10] else '0.950' }}</td>
+                            <td>
+                                {% if receipt[11] %}
+                                    <span class="status-badge success">Optimized</span>
+                                {% else %}
+                                    <span class="status-badge warning">Fallback</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js configuration
+        Chart.defaults.color = '#a1a1aa';
+        Chart.defaults.borderColor = '#27272a';
+        Chart.defaults.backgroundColor = 'rgba(52, 211, 153, 0.1)';
+
+        // Tokens Saved Over Time Chart
+        const tokensCtx = document.getElementById('tokensChart').getContext('2d');
+        const tokensChart = new Chart(tokensCtx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: 'Tokens Saved',
+                    data: {{ tokens_saved_data|safe }},
+                    borderColor: '#34D399',
+                    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Baseline',
+                    data: new Array({{ chart_labels|length }}).fill(0),
+                    borderColor: '#71717a',
+                    backgroundColor: 'rgba(113, 113, 122, 0.1)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#a1a1aa',
+                            usePointStyle: true
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#27272a'
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#27272a'
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    }
+                }
+            }
+        });
+
+        // CO2 Saved Over Time Chart
+        const co2Ctx = document.getElementById('co2Chart').getContext('2d');
+        const co2Chart = new Chart(co2Ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: 'CO₂ Saved (g)',
+                    data: {{ co2_saved_data|safe }},
+                    backgroundColor: 'rgba(96, 165, 250, 0.8)',
+                    borderColor: '#60A5FA',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#a1a1aa',
+                            usePointStyle: true
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#27272a'
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#27272a'
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Keyboard shortcut for search
+        document.addEventListener('keydown', function(e) {
+            if (e.metaKey && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+
+        // Email stats functionality
+        async function sendStatsEmail(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('userEmail').value;
+            const statusDiv = document.getElementById('emailStatus');
+            const sendBtn = document.querySelector('.send-btn');
+            
+            if (!email) {
+                showStatus('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Show loading state
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('email', email);
+                
+                const response = await fetch('/send-stats-email', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('📧 Email sent successfully! Check your inbox for your impact report!', 'success');
+                    document.getElementById('userEmail').value = '';
+                } else {
+                    showStatus(`❌ Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Network error. Please try again.', 'error');
+                console.error('Email sending error:', error);
+            } finally {
+                // Reset button
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send My Stats';
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('emailStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `email-status ${type}`;
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

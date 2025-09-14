@@ -1,0 +1,28 @@
+# EcoAI Portal Email Configuration
+# Copy these settings to your environment variables
+
+# SMTP Configuration
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+
+# Email Settings
+FROM_EMAIL=noreply@ecoai.com
+FROM_NAME=EcoAI Portal
+
+# Flask Configuration
+SECRET_KEY=your-secret-key-here
+FLASK_ENV=development
+
+# Instructions for Gmail:
+# 1. Enable 2-factor authentication on your Gmail account
+# 2. Generate an "App Password" for this application
+# 3. Use the app password (not your regular password) in SMTP_PASSWORD
+# 4. Set these as environment variables before running the app
+
+# Example of setting environment variables:
+# export SMTP_USERNAME="your-email@gmail.com"
+# export SMTP_PASSWORD="your-16-character-app-password"
+# export FROM_EMAIL="your-email@gmail.com"
+# export FROM_NAME="EcoAI Portal"
