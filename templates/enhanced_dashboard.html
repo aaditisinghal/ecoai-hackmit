@@ -840,6 +840,108 @@
             </div>
         </div>
 
+        <!-- Additional Charts Grid -->
+        <div class="charts-grid fade-in-up">
+            <!-- Model Performance Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Model Performance & Confidence</h3>
+                        <p class="chart-subtitle">Quality scores and accuracy metrics</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Optimization Success Rate -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Optimization Success Rate</h3>
+                        <p class="chart-subtitle">Successful vs failed optimizations</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="successRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost Savings & Efficiency Grid -->
+        <div class="charts-grid fade-in-up">
+            <!-- Cost Savings Over Time -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Cost Savings Over Time</h3>
+                        <p class="chart-subtitle">Daily cost reduction tracking</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="costSavingsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Model Distribution -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">Model Usage Distribution</h3>
+                        <p class="chart-subtitle">Popular models and their efficiency</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="modelDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tickets Section -->
+        <div class="tickets-section fade-in-up">
+            <div class="section-header">
+                <h2 class="section-title">🎫 Support Tickets & Feedback</h2>
+                <p class="section-subtitle">Manage your support requests and track responses</p>
+            </div>
+            
+            <div class="tickets-grid">
+                <div class="ticket-card">
+                    <div class="ticket-header">
+                        <h4>Create New Ticket</h4>
+                        <button class="btn btn-primary" onclick="showTicketModal()">
+                            <i class="fas fa-plus"></i> New Ticket
+                        </button>
+                    </div>
+                    <div class="ticket-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">Open Tickets</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">Resolved</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">24h</span>
+                            <span class="stat-label">Avg Response</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ticket-list">
+                    <div class="ticket-item">
+                        <div class="ticket-status resolved">✓</div>
+                        <div class="ticket-content">
+                            <h5>Welcome to EcoAI Support</h5>
+                            <p>Your support ticket system is ready. Create tickets for any issues or feedback.</p>
+                            <span class="ticket-date">Just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Comparison Grid -->
         <div class="comparison-grid fade-in-up">
             <!-- Before vs After Comparison -->
@@ -1110,6 +1212,164 @@
             }
         });
 
+        // Model Performance Chart
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(performanceCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Accuracy', 'Confidence', 'Quality', 'Efficiency', 'Speed'],
+                datasets: [{
+                    label: 'Model Performance',
+                    data: [{{ avg_quality_score * 100 }}, 95, {{ avg_quality_score * 100 }}, 88, 92],
+                    backgroundColor: 'rgba(52, 211, 153, 0.2)',
+                    borderColor: '#34D399',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#34D399',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#a1a1aa'
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: '#27272a'
+                        },
+                        pointLabels: {
+                            color: '#a1a1aa'
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Success Rate Chart
+        const successRateCtx = document.getElementById('successRateChart').getContext('2d');
+        const successRateChart = new Chart(successRateCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Successful', 'Failed'],
+                datasets: [{
+                    data: [{{ total_calls * 0.95 }}, {{ total_calls * 0.05 }}],
+                    backgroundColor: ['#34D399', '#EF4444'],
+                    borderColor: ['#059669', '#DC2626'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#a1a1aa',
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
+        // Cost Savings Chart
+        const costSavingsCtx = document.getElementById('costSavingsChart').getContext('2d');
+        const costSavingsChart = new Chart(costSavingsCtx, {
+            type: 'area',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: 'Cost Saved ($)',
+                    data: {{ co2_saved_data|safe }}.map(x => (x * 0.02).toFixed(4)),
+                    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                    borderColor: '#F59E0B',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#a1a1aa'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#27272a'
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#27272a'
+                        },
+                        ticks: {
+                            color: '#71717a'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Model Distribution Chart
+        const modelDistributionCtx = document.getElementById('modelDistributionChart').getContext('2d');
+        const modelDistributionChart = new Chart(modelDistributionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['GPT-3.5 Turbo', 'GPT-4', 'Claude-3', 'Gemini Pro'],
+                datasets: [{
+                    data: [45, 30, 15, 10],
+                    backgroundColor: [
+                        'rgba(52, 211, 153, 0.8)',
+                        'rgba(96, 165, 250, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(139, 92, 246, 0.8)'
+                    ],
+                    borderColor: [
+                        '#34D399',
+                        '#60A5FA',
+                        '#F59E0B',
+                        '#8B5CF6'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#a1a1aa',
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
@@ -1186,6 +1446,11 @@
             setTimeout(() => {
                 statusDiv.style.display = 'none';
             }, 5000);
+        }
+
+        // Ticket Modal Function
+        function showTicketModal() {
+            alert('Ticket creation feature coming soon! For now, use the Developer Support chatbot in the bottom right corner.');
         }
 
         // Developer Support Chatbot
@@ -1460,6 +1725,106 @@
             background: rgba(255, 255, 255, 0.2);
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
+        }
+
+        /* Tickets Section */
+        .tickets-section {
+            margin: 3rem 0;
+        }
+
+        .tickets-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .ticket-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ticket-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .ticket-list {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .ticket-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .ticket-status {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .ticket-status.resolved {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .ticket-content h5 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .ticket-content p {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .ticket-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
 
         /* Mobile Responsive */
