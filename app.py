@@ -467,8 +467,7 @@ def dashboard():
             
             tokens_saved_data.append(daily_tokens)
             co2_saved_data.append(daily_co2)
-            # Scale cost data for better chart display (multiply by 1000 to show in cents)
-            cost_saved_data.append(daily_cost * 1000)
+            cost_saved_data.append(daily_cost)
         
         # Calculate model efficiency metrics
         for model, data in model_efficiency_data.items():
@@ -476,7 +475,6 @@ def dashboard():
                 avg_tokens_saved = data['total_tokens_saved'] / data['total_calls']
                 avg_cost_saved = data['total_cost_saved'] / data['total_calls']
                 avg_co2_saved = data['total_co2_saved'] / data['total_calls']
-                # Scale cost for efficiency score calculation
                 efficiency_score = (avg_tokens_saved * 0.4) + (avg_cost_saved * 1000 * 0.3) + (avg_co2_saved * 1000 * 0.3)
                 
                 model_usage_data.append({
@@ -484,18 +482,13 @@ def dashboard():
                     'calls': data['total_calls'],
                     'percentage': (data['total_calls'] / total_calls) * 100,
                     'avg_tokens_saved': avg_tokens_saved,
-                    'avg_cost_saved': avg_cost_saved * 1000,  # Scale to cents
+                    'avg_cost_saved': avg_cost_saved,
                     'avg_co2_saved': avg_co2_saved,
                     'efficiency_score': efficiency_score
                 })
         
         # Sort models by usage
         model_usage_data.sort(key=lambda x: x['calls'], reverse=True)
-        
-        # Debug logging
-        print(f"DEBUG: chart_labels = {chart_labels}")
-        print(f"DEBUG: cost_saved_data = {cost_saved_data}")
-        print(f"DEBUG: model_usage_data = {model_usage_data}")
         
         return render_template('enhanced_dashboard.html',
                              total_tokens_saved=total_tokens_saved,
@@ -545,6 +538,11 @@ def dashboard():
 def professional_dashboard():
     """Redirect to combined dashboard"""
     return redirect(url_for('dashboard'))
+
+@app.route('/docs')
+def api_docs():
+    """API Documentation page"""
+    return render_template('api_docs.html')
 
 # ML Server Integration Endpoints
 @app.route('/api/ml/learning-data', methods=['POST'])
