@@ -132,8 +132,18 @@ class EmailService:
                 .stat-label {{ color: #666; margin-top: 5px; }}
                 .impact-section {{ background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }}
                 .co2-saved {{ font-size: 1.5em; color: #059669; font-weight: bold; }}
+                .retailer-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0; }}
+                .retailer-card {{ background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #e9ecef; }}
+                .retailer-logo {{ font-weight: bold; margin-bottom: 10px; padding: 8px; border-radius: 4px; }}
+                .best-buy {{ background: #1e3a8a; color: white; font-size: 1.1em; }}
+                .macys {{ background: #dc2626; color: white; font-size: 1.3em; font-style: italic; }}
+                .amazon {{ background: #fbbf24; color: #1f2937; font-size: 1.2em; }}
+                .walmart {{ background: #1e40af; color: white; font-size: 1.1em; }}
+                .target {{ background: #dc2626; color: white; font-size: 1.2em; }}
+                .discount-code {{ font-size: 1.3em; font-weight: bold; color: #34D399; margin: 8px 0; }}
+                .discount-text {{ font-size: 0.9em; color: #666; }}
                 .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 0.9em; }}
-                @media (max-width: 600px) {{ .stats-grid {{ grid-template-columns: 1fr; }} }}
+                @media (max-width: 600px) {{ .stats-grid {{ grid-template-columns: 1fr; }} .retailer-grid {{ grid-template-columns: 1fr; }} }}
             </style>
         </head>
         <body>
@@ -181,6 +191,47 @@ class EmailService:
                         {self._format_model_breakdown(stats['model_breakdown'])}
                     </div>
                     
+                    <div class="impact-section">
+                        <h3>🛍️ Claim Your Eco-Friendly Discounts!</h3>
+                        <p>As a conscious AI user, enjoy exclusive discounts from our partner retailers:</p>
+                        
+                        <div class="retailer-grid">
+                            <div class="retailer-card">
+                                <div class="retailer-logo best-buy">BEST<br>BUY</div>
+                                <div class="discount-code">ECO15</div>
+                                <div class="discount-text">15% OFF Electronics</div>
+                            </div>
+                            
+                            <div class="retailer-card">
+                                <div class="retailer-logo macys">macy's</div>
+                                <div class="discount-code">ECO20</div>
+                                <div class="discount-text">20% OFF Fashion</div>
+                            </div>
+                            
+                            <div class="retailer-card">
+                                <div class="retailer-logo amazon">amazon</div>
+                                <div class="discount-code">ECO10</div>
+                                <div class="discount-text">10% OFF Eco Products</div>
+                            </div>
+                            
+                            <div class="retailer-card">
+                                <div class="retailer-logo walmart">Walmart</div>
+                                <div class="discount-code">ECO12</div>
+                                <div class="discount-text">12% OFF Groceries</div>
+                            </div>
+                            
+                            <div class="retailer-card">
+                                <div class="retailer-logo target">TARGET</div>
+                                <div class="discount-code">ECO18</div>
+                                <div class="discount-text">18% OFF Home Goods</div>
+                            </div>
+                        </div>
+                        
+                        <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">
+                            <strong>Valid for EcoAI users only. Use codes at checkout!</strong>
+                        </p>
+                    </div>
+                    
                     <div class="footer">
                         <p>Thank you for using EcoAI to make AI more sustainable! 🌍</p>
                         <p>Visit your dashboard: <a href="http://localhost:8000/dashboard">EcoAI Portal</a></p>
@@ -214,6 +265,18 @@ That's equivalent to {self._get_co2_comparison(stats['total_co2_saved'])}
 
 🤖 Model Usage:
 {self._format_model_breakdown_text(stats['model_breakdown'])}
+
+🛍️ CLAIM YOUR ECO-FRIENDLY DISCOUNTS!
+====================================
+As a conscious AI user, enjoy exclusive discounts from our partner retailers:
+
+BEST BUY - Code: ECO15 - 15% OFF Electronics
+MACY'S - Code: ECO20 - 20% OFF Fashion  
+AMAZON - Code: ECO10 - 10% OFF Eco Products
+WALMART - Code: ECO12 - 12% OFF Groceries
+TARGET - Code: ECO18 - 18% OFF Home Goods
+
+Valid for EcoAI users only. Use codes at checkout!
 
 Thank you for using EcoAI to make AI more sustainable! 🌍
 
