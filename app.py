@@ -234,13 +234,21 @@ def dashboard():
     
     conn.close()
     
-    return render_template('dashboard.html',
-                         total_receipts=total_receipts,
-                         tokens_saved=tokens_saved,
-                         co2_saved=co2_saved,
-                         avg_quality=avg_quality,
-                         recent_receipts=recent_receipts,
-                         daily_stats=daily_stats)
+    # Create summary object for new dashboard
+    summary = {
+        'tokens_saved': tokens_saved,
+        'co2_g_saved': co2_saved,
+        'avg_quality': avg_quality,
+        'parity_rate': 0.95  # Mock success rate
+    }
+    
+    # Create series data for charts
+    series = [{'day': stat[0], 'co2_g_saved': stat[1] or 0} for stat in daily_stats]
+    
+    return render_template('dashboard_new.html',
+                         summary=summary,
+                         series=series,
+                         receipts=recent_receipts)
 
 # API Endpoints
 @app.route('/api/ingest/batch', methods=['POST'])

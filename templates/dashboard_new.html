@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - EcoAI Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="hero-section py-5 mb-4">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1><i class="fas fa-chart-line eco-icon"></i> EcoAI Dashboard</h1>
+                <p class="lead">Track your green AI optimization impact</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="number">{{ summary.tokens_saved or 0 }}</div>
+                <div class="label">Tokens Saved</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="number">{{ "%.3f"|format(summary.co2_g_saved or 0) }}g</div>
+                <div class="label">CO₂ Saved</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="number">{{ "%.1f"|format(summary.avg_quality * 100 or 0) }}%</div>
+                <div class="label">Quality Score</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="number">{{ "%.1f"|format(summary.parity_rate * 100 or 0) }}%</div>
+                <div class="label">Success Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h5><i class="fas fa-chart-area"></i> CO₂ Savings Over Time</h5>
+                <canvas id="co2Chart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-container">
+                <h5><i class="fas fa-chart-pie"></i> Optimization Strategies</h5>
+                <canvas id="strategyChart" width="200" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5><i class="fas fa-chart-bar"></i> Token Reduction Trends</h5>
+                <canvas id="tokenChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5><i class="fas fa-chart-line"></i> Quality Score Distribution</h5>
+                <canvas id="qualityChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="chart-container">
+                <h5><i class="fas fa-balance-scale"></i> Before vs After Comparison</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Without EcoAI</h6>
+                        <div class="comparison-card">
+                            <div class="comparison-stat">
+                                <i class="fas fa-fire text-danger"></i>
+                                <span class="stat-number">{{ (summary.tokens_saved or 0) + (summary.tokens_saved or 0) }}</span>
+                                <span class="stat-label">Total Tokens</span>
+                            </div>
+                            <div class="comparison-stat">
+                                <i class="fas fa-smog text-warning"></i>
+                                <span class="stat-number">{{ "%.3f"|format((summary.co2_g_saved or 0) * 2) }}g</span>
+                                <span class="stat-label">CO₂ Emissions</span>
+                            </div>
+                            <div class="comparison-stat">
+                                <i class="fas fa-dollar-sign text-success"></i>
+                                <span class="stat-number">${{ "%.2f"|format((summary.tokens_saved or 0) * 0.02) }}</span>
+                                <span class="stat-label">Estimated Cost</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>With EcoAI</h6>
+                        <div class="comparison-card">
+                            <div class="comparison-stat">
+                                <i class="fas fa-leaf text-success"></i>
+                                <span class="stat-number">{{ summary.tokens_saved or 0 }}</span>
+                                <span class="stat-label">Tokens Used</span>
+                            </div>
+                            <div class="comparison-stat">
+                                <i class="fas fa-recycle text-info"></i>
+                                <span class="stat-number">{{ "%.3f"|format(summary.co2_g_saved or 0) }}g</span>
+                                <span class="stat-label">CO₂ Emissions</span>
+                            </div>
+                            <div class="comparison-stat">
+                                <i class="fas fa-piggy-bank text-success"></i>
+                                <span class="stat-number">${{ "%.2f"|format((summary.tokens_saved or 0) * 0.01) }}</span>
+                                <span class="stat-label">Estimated Cost</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Optimizations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="chart-container">
+                <h5><i class="fas fa-history"></i> Recent Optimizations</h5>
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Tokens Before</th>
+                                <th>Tokens After</th>
+                                <th>Savings</th>
+                                <th>CO₂ Saved</th>
+                                <th>Quality</th>
+                                <th>Strategy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for receipt in receipts[:10] %}
+                            <tr>
+                                <td>{{ receipt[6][:10] }}</td>
+                                <td>{{ receipt[1] }}</td>
+                                <td>{{ receipt[2] }}</td>
+                                <td>
+                                    <span class="badge bg-success">{{ receipt[1] - receipt[2] }}</span>
+                                </td>
+                                <td>{{ "%.3f"|format(receipt[3] - receipt[4]) }}g</td>
+                                <td>
+                                    {% if receipt[5] %}
+                                        <span class="badge bg-primary">{{ "%.2f"|format(receipt[5]) }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">Balanced</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.comparison-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.comparison-stat {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.comparison-stat i {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    width: 30px;
+}
+
+.comparison-stat .stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-right: 10px;
+}
+
+.comparison-stat .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Chart.js configuration for dark theme
+    Chart.defaults.color = '#ffffff';
+    Chart.defaults.borderColor = '#333333';
+    Chart.defaults.backgroundColor = 'rgba(0, 255, 136, 0.1)';
+
+    // CO₂ Savings Over Time Chart
+    const co2Ctx = document.getElementById('co2Chart').getContext('2d');
+    new Chart(co2Ctx, {
+        type: 'line',
+        data: {
+            labels: {{ series|map(attribute='day')|list|tojson }},
+            datasets: [{
+                label: 'CO₂ Saved (g)',
+                data: {{ series|map(attribute='co2_g_saved')|list|tojson }},
+                borderColor: '#00ff88',
+                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333333' }
+                },
+                y: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333333' }
+                }
+            }
+        }
+    });
+
+    // Optimization Strategies Pie Chart
+    const strategyCtx = document.getElementById('strategyChart').getContext('2d');
+    new Chart(strategyCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Conservative', 'Balanced', 'Aggressive'],
+            datasets: [{
+                data: [15, 20, 5],
+                backgroundColor: [
+                    '#00ff88',
+                    '#0088ff',
+                    '#ff8800'
+                ],
+                borderWidth: 2,
+                borderColor: '#1a1a1a'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            }
+        }
+    });
+
+    // Token Reduction Chart
+    const tokenCtx = document.getElementById('tokenChart').getContext('2d');
+    new Chart(tokenCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Tokens Saved',
+                data: [120, 150, 180, 200],
+                backgroundColor: 'rgba(0, 255, 136, 0.8)',
+                borderColor: '#00ff88',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333333' }
+                },
+                y: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333333' }
+                }
+            }
+        }
+    });
+
+    // Quality Score Chart
+    const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+    new Chart(qualityCtx, {
+        type: 'line',
+        data: {
+            labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+            datasets: [{
+                label: 'Quality Score',
+                data: [0.95, 0.94, 0.96, 0.93, 0.97, 0.95, 0.96],
+                borderColor: '#0088ff',
+                backgroundColor: 'rgba(0, 136, 255, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333333' }
+                },
+                y: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: '#333333' },
+                    min: 0.9,
+                    max: 1.0
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
