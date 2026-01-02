@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}API Key - EcoAI Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center py-5">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h4><i class="fas fa-key eco-icon"></i> Your API Key</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Important:</strong> Keep your API key secure and don't share it publicly. 
+                        Use it to authenticate with the EcoAI Portal API.
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Your API Key:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="apiKey" value="{{ user[4] }}" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyApiKey()">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>How to use your API key:</h5>
+                        <ol>
+                            <li>Download the EcoAI SDK from the <a href="{{ url_for('download') }}">Download page</a></li>
+                            <li>Initialize the SDK with your API key:</li>
+                        </ol>
+                        
+                        <div class="bg-dark text-light p-3 rounded">
+                            <code>
+                                from ecoai_sdk import EcoAI<br>
+                                <br>
+                                ecoai = EcoAI(api_key="{{ user[4] }}")<br>
+                                result = ecoai.optimize_prompt("Your prompt here")
+                            </code>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>API Endpoints:</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Endpoint</th>
+                                        <th>Method</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>/api/ingest/batch</code></td>
+                                        <td><span class="badge bg-success">POST</span></td>
+                                        <td>Send optimization data to portal</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/receipts</code></td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                        <td>Get your optimization receipts</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>/api/metrics/summary</code></td>
+                                        <td><span class="badge bg-primary">GET</span></td>
+                                        <td>Get summary metrics</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-success">
+                            <i class="fas fa-chart-line"></i> View Dashboard
+                        </a>
+                        <a href="{{ url_for('download') }}" class="btn btn-outline-success">
+                            <i class="fas fa-download"></i> Download SDK
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyApiKey() {
+    const apiKey = document.getElementById('apiKey');
+    apiKey.select();
+    apiKey.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    
+    // Show success message
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+    
+    setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+</script>
+{% endblock %}
