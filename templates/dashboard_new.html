@@ -110,17 +110,17 @@
                         <div class="comparison-card">
                             <div class="comparison-stat">
                                 <i class="fas fa-fire text-danger"></i>
-                                <span class="stat-number">{{ (summary.tokens_saved or 0) + (summary.tokens_saved or 0) }}</span>
+                                <span class="stat-number">{{ comparison_data.tokens_without }}</span>
                                 <span class="stat-label">Total Tokens</span>
                             </div>
                             <div class="comparison-stat">
                                 <i class="fas fa-smog text-warning"></i>
-                                <span class="stat-number">{{ "%.3f"|format((summary.co2_g_saved or 0) * 2) }}g</span>
+                                <span class="stat-number">{{ "%.3f"|format(comparison_data.co2_without) }}g</span>
                                 <span class="stat-label">CO₂ Emissions</span>
                             </div>
                             <div class="comparison-stat">
                                 <i class="fas fa-dollar-sign text-success"></i>
-                                <span class="stat-number">${{ "%.2f"|format((summary.tokens_saved or 0) * 0.02) }}</span>
+                                <span class="stat-number">${{ "%.2f"|format(comparison_data.cost_without) }}</span>
                                 <span class="stat-label">Estimated Cost</span>
                             </div>
                         </div>
@@ -130,17 +130,17 @@
                         <div class="comparison-card">
                             <div class="comparison-stat">
                                 <i class="fas fa-leaf text-success"></i>
-                                <span class="stat-number">{{ summary.tokens_saved or 0 }}</span>
+                                <span class="stat-number">{{ comparison_data.tokens_with }}</span>
                                 <span class="stat-label">Tokens Used</span>
                             </div>
                             <div class="comparison-stat">
                                 <i class="fas fa-recycle text-info"></i>
-                                <span class="stat-number">{{ "%.3f"|format(summary.co2_g_saved or 0) }}g</span>
+                                <span class="stat-number">{{ "%.3f"|format(comparison_data.co2_with) }}g</span>
                                 <span class="stat-label">CO₂ Emissions</span>
                             </div>
                             <div class="comparison-stat">
                                 <i class="fas fa-piggy-bank text-success"></i>
-                                <span class="stat-number">${{ "%.2f"|format((summary.tokens_saved or 0) * 0.01) }}</span>
+                                <span class="stat-number">${{ "%.2f"|format(comparison_data.cost_with) }}</span>
                                 <span class="stat-label">Estimated Cost</span>
                             </div>
                         </div>
@@ -312,7 +312,7 @@
         }
     });
 
-    // Token Reduction Chart
+    // Token Reduction Chart - Real Data
     const tokenCtx = document.getElementById('tokenChart').getContext('2d');
     new Chart(tokenCtx, {
         type: 'bar',
@@ -320,7 +320,7 @@
             labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
             datasets: [{
                 label: 'Tokens Saved',
-                data: [120, 150, 180, 200],
+                data: {{ weekly_data|tojson }},
                 backgroundColor: 'rgba(0, 255, 136, 0.8)',
                 borderColor: '#00ff88',
                 borderWidth: 1
@@ -348,7 +348,7 @@
         }
     });
 
-    // Quality Score Chart
+    // Quality Score Chart - Real Data
     const qualityCtx = document.getElementById('qualityChart').getContext('2d');
     new Chart(qualityCtx, {
         type: 'line',
@@ -356,7 +356,7 @@
             labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
             datasets: [{
                 label: 'Quality Score',
-                data: [0.95, 0.94, 0.96, 0.93, 0.97, 0.95, 0.96],
+                data: {{ quality_trends|tojson }},
                 borderColor: '#0088ff',
                 backgroundColor: 'rgba(0, 136, 255, 0.1)',
                 tension: 0.4,
