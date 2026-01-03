@@ -8,190 +8,98 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .navbar-brand {
-            font-weight: bold;
-            color: #28a745 !important;
-        }
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-        .metric-card {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-        }
-        .metric-card h3 {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        .eco-icon {
-            color: #28a745;
-        }
-        .footer {
-            background-color: #f8f9fa;
-            padding: 2rem 0;
-            margin-top: 4rem;
-        }
-    </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-leaf eco-icon"></i> EcoAI Portal
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('docs') }}">
-                            <i class="fas fa-book"></i> Docs
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('download') }}">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </li>
-                    {% if session.user_id %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('dashboard') }}">
-                                <i class="fas fa-chart-line"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('profile') }}">
-                                <i class="fas fa-key"></i> API Key
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-                
-                <ul class="navbar-nav">
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-leaf"></i>
+                <span>EcoAI</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                {% if session.user_id %}
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('profile') }}">Profile</a>
+                    <a href="{{ url_for('docs') }}">Docs</a>
+                    <a href="{{ url_for('download') }}">Download</a>
                     {% if session.admin_logged_in %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
-                                <i class="fas fa-shield-alt"></i> Admin
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_logout') }}">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </li>
-                    {% elif session.user_id %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> {{ session.username }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ url_for('get_user_profile') }}">
-                                    <i class="fas fa-key"></i> API Key
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('signup') }}">
-                                <i class="fas fa-user-plus"></i> Sign Up
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_login') }}">
-                                <i class="fas fa-shield-alt"></i> Admin
-                            </a>
-                        </li>
+                        <a href="{{ url_for('admin_dashboard') }}">Admin</a>
                     {% endif %}
-                </ul>
+                    <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('docs') }}">Docs</a>
+                    <a href="{{ url_for('download') }}">Download</a>
+                    <a href="{{ url_for('login') }}" class="nav-cta">Get Started</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
-    <!-- Dark Mode Toggle -->
-    <button class="dark-mode-toggle" onclick="toggleDarkMode()">
-        <i class="fas fa-moon" id="darkModeIcon"></i>
-    </button>
-
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="container mt-3">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
     <!-- Main Content -->
     <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="fas fa-leaf eco-icon"></i> EcoAI Portal</h5>
-                    <p class="text-muted">Track your AI carbon footprint and optimize for a greener future.</p>
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-leaf"></i>
+                        <span>EcoAI</span>
+                    </div>
+                    <p class="footer-tagline">Smarter AI, Smaller Footprint.</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="text-muted">&copy; 2024 EcoAI. Making AI greener, one optimization at a time.</p>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Product</h4>
+                        <a href="{{ url_for('index') }}">Home</a>
+                        <a href="{{ url_for('dashboard') if session.user_id else url_for('login') }}">Dashboard</a>
+                        <a href="{{ url_for('docs') }}">Documentation</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Resources</h4>
+                        {% if session.user_id %}
+                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                            <a href="{{ url_for('profile') }}">API Key</a>
+                            <a href="{{ url_for('docs') }}">Documentation</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('login') }}">Get Started</a>
+                            <a href="{{ url_for('docs') }}">Documentation</a>
+                        {% endif %}
+                    </div>
+                    <div class="footer-section">
+                        <h4>Company</h4>
+                        <a href="#">About</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Careers</a>
+                    </div>
                 </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 EcoAI. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Dark Mode Toggle
-        function toggleDarkMode() {
-            const body = document.body;
-            const icon = document.getElementById('darkModeIcon');
-            
-            if (body.classList.contains('dark-theme')) {
-                body.classList.remove('dark-theme');
-                icon.className = 'fas fa-moon';
-                localStorage.setItem('darkMode', 'false');
-            } else {
-                body.classList.add('dark-theme');
-                icon.className = 'fas fa-sun';
-                localStorage.setItem('darkMode', 'true');
-            }
-        }
-
-        // Load dark mode preference (default to dark mode)
-        document.addEventListener('DOMContentLoaded', function() {
-            const darkMode = localStorage.getItem('darkMode');
-            const icon = document.getElementById('darkModeIcon');
-            
-            // Default to dark mode if no preference is set
-            if (darkMode === null || darkMode === 'true') {
-                document.body.classList.add('dark-theme');
-                icon.className = 'fas fa-sun';
-            }
-        });
-    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

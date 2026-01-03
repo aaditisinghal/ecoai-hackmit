@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoAI - Make AI Greener. Keep the Quality.</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='promo-style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="{{ url_for('static', filename='LOGOECOAI.png') }}" alt="EcoAI" class="logo-img">
+                <span>EcoAI</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#receipts">Receipts</a>
+                <a href="{{ url_for('prompt_studio') }}" target="_blank" class="nav-link-studio">Prompt Studio</a>
+                {% if session.user_id %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-cta">Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-cta">Get Started</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <div class="gradient-mesh"></div>
+            <div class="particles"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-logo">
+                    <img src="{{ url_for('static', filename='LOGOECOAI.png') }}" alt="EcoAI" class="hero-logo-img">
+                </div>
+                <h1 class="hero-title">
+                    Make AI <span class="gradient-text">Greener</span>.<br>
+                    Keep the <span class="gradient-text">Quality</span>.
+                </h1>
+                <p class="hero-subtitle">
+                    EcoAI compresses prompts, prunes workflows, and routes calls to low-carbon regions — all without loss of quality.
+                </p>
+                <div class="hero-buttons">
+                    {% if session.user_id %}
+                        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('dashboard') }}'">
+                            <i class="fas fa-chart-line"></i>
+                            View Dashboard
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.open('{{ url_for('prompt_studio') }}', '_blank')">
+                            <i class="fas fa-edit"></i>
+                            Prompt Studio
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('profile') }}'">
+                            <i class="fas fa-key"></i>
+                            API Key
+                        </button>
+                    {% else %}
+                        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">
+                            <i class="fas fa-chart-line"></i>
+                            See Demo
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.open('{{ url_for('prompt_studio') }}', '_blank')">
+                            <i class="fas fa-edit"></i>
+                            Prompt Studio
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('login') }}'">
+                            <i class="fas fa-rocket"></i>
+                            Get Started
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="488">0</div>
+                        <div class="stat-label">Tokens Saved</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="0.701">0</div>
+                        <div class="stat-label">g CO₂ Saved</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" data-target="95.1">0</div>
+                        <div class="stat-label">Quality %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>How EcoAI Works</h2>
+                <p>Four powerful optimization strategies that make your AI greener without compromising quality</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                    </div>
+                    <h3>Prompt Compression</h3>
+                    <p>Intelligently removes filler words, optimizes structure, and enforces output constraints while preserving semantic meaning.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <h3>Workflow Pruning</h3>
+                    <p>Analyzes agent DAGs to identify and eliminate redundant steps, merge similar operations, and optimize execution paths.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe-americas"></i>
+                    </div>
+                    <h3>Carbon-Aware Routing</h3>
+                    <p>Routes API calls to regions with lower carbon intensity and optimal timing while maintaining latency requirements.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <h3>Quality Gates</h3>
+                    <p>Multi-layer validation ensures optimization never compromises quality with automatic fallback to original prompts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="dashboard">
+        <div class="container">
+            <div class="section-header">
+                <h2>Your Impact Dashboard</h2>
+                <p>Real-time optimization metrics and environmental impact</p>
+            </div>
+            <div class="dashboard-grid">
+                <div class="dashboard-card large">
+                    <div class="card-header">
+                        <h3>Savings Over Time</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" data-period="7d">7D</button>
+                            <button class="chart-btn" data-period="30d">30D</button>
+                            <button class="chart-btn" data-period="90d">90D</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="savingsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-number" data-target="32.5">0</div>
+                            <div class="metric-label">Avg Token Reduction %</div>
+                            <div class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                +2.1% this week
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-number" data-target="15.2">0</div>
+                            <div class="metric-label">Latency Reduction %</div>
+                            <div class="metric-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                +1.3% this week
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Receipts Section -->
+    <section id="receipts" class="receipts">
+        <div class="container">
+            <div class="section-header">
+                <h2>Carbon Receipts</h2>
+                <p>Transparent tracking of every optimization with detailed impact metrics</p>
+            </div>
+            <div class="receipts-container">
+                <div class="receipts-table">
+                    <div class="table-header">
+                        <div class="table-row">
+                            <div class="table-cell">Time</div>
+                            <div class="table-cell">App</div>
+                            <div class="table-cell">Tokens ↓%</div>
+                            <div class="table-cell">CO₂ ↓%</div>
+                            <div class="table-cell">Quality ✓</div>
+                            <div class="table-cell">Status</div>
+                        </div>
+                    </div>
+                    <div class="table-body">
+                        <div class="table-row" data-receipt="1">
+                            <div class="table-cell">
+                                <div class="time-cell">
+                                    <div class="time">2 min ago</div>
+                                    <div class="date">Jan 15, 2025</div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="app-cell">
+                                    <i class="fas fa-code"></i>
+                                    <span>Code Assistant</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-28.5%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-31.2%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="quality-score">
+                                    <div class="score">96.8%</div>
+                                    <div class="quality-bar">
+                                        <div class="quality-fill" style="width: 96.8%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="status-badge success">
+                                    <i class="fas fa-check"></i>
+                                    Optimized
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-row" data-receipt="2">
+                            <div class="table-cell">
+                                <div class="time-cell">
+                                    <div class="time">5 min ago</div>
+                                    <div class="date">Jan 15, 2025</div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="app-cell">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>Content Writer</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-35.1%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-38.7%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="quality-score">
+                                    <div class="score">94.2%</div>
+                                    <div class="quality-bar">
+                                        <div class="quality-fill" style="width: 94.2%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="status-badge success">
+                                    <i class="fas fa-check"></i>
+                                    Optimized
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-row" data-receipt="3">
+                            <div class="table-cell">
+                                <div class="time-cell">
+                                    <div class="time">8 min ago</div>
+                                    <div class="date">Jan 15, 2025</div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="app-cell">
+                                    <i class="fas fa-search"></i>
+                                    <span>Data Analyzer</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-22.3%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-25.1%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="quality-score">
+                                    <div class="score">97.5%</div>
+                                    <div class="quality-bar">
+                                        <div class="quality-fill" style="width: 97.5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="status-badge success">
+                                    <i class="fas fa-check"></i>
+                                    Optimized
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-row" data-receipt="4">
+                            <div class="table-cell">
+                                <div class="time-cell">
+                                    <div class="time">12 min ago</div>
+                                    <div class="date">Jan 15, 2025</div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="app-cell">
+                                    <i class="fas fa-comments"></i>
+                                    <span>Chat Bot</span>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-41.2%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="percentage positive">-44.8%</div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="quality-score">
+                                    <div class="score">93.7%</div>
+                                    <div class="quality-bar">
+                                        <div class="quality-fill" style="width: 93.7%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-cell">
+                                <div class="status-badge success">
+                                    <i class="fas fa-check"></i>
+                                    Optimized
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-leaf"></i>
+                        <span>EcoAI</span>
+                    </div>
+                    <p class="footer-tagline">Smarter AI, Smaller Footprint.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#dashboard">Dashboard</a>
+                        <a href="#receipts">Receipts</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Resources</h4>
+                        {% if session.user_id %}
+                            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                            <a href="{{ url_for('profile') }}">API Key</a>
+                            <a href="{{ url_for('docs') }}">Documentation</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('login') }}">Get Started</a>
+                            <a href="{{ url_for('docs') }}">Documentation</a>
+                        {% endif %}
+                    </div>
+                    <div class="footer-section">
+                        <h4>Company</h4>
+                        <a href="#">About</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Careers</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 EcoAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='promo-script.js') }}"></script>
+</body>
+</html>

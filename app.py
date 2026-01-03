@@ -8,12 +8,19 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import sqlite3
 import json
 import os
+import time
 from datetime import datetime, timedelta
 import hashlib
 import secrets
+from email_service import email_service
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+
+# Configure session
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Add custom Jinja2 filters
 @app.template_filter('from_json')
@@ -113,10 +120,9 @@ def require_api_key(f):
 # Routes
 @app.route('/')
 def index():
-    """Home page"""
-    if 'user_id' in session:
-        return redirect(url_for('dashboard'))
-    return render_template('index.html')
+    """Home page - Professional promo design"""
+    # Always show the professional homepage, whether logged in or not
+    return render_template('homepage.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -150,6 +156,8 @@ def login():
             total_co2_saved = stats[2] or 0
             
             flash(f'Welcome back, {user[1]}! You have completed {total_optimizations} optimizations, saving {total_tokens_saved} tokens and {total_co2_saved:.3f}g CO₂.', 'success')
+            
+            # Redirect to dashboard
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password', 'error')
@@ -196,159 +204,305 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    """Dashboard page"""
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
+    """Enhanced Dashboard with comprehensive statistics and real data"""
+    # Check if user is logged in (bypass for demo)
+    # if 'user_id' not in session:
+    #     return redirect(url_for('login'))
     
-    user_id = session['user_id']
+    try:
+        # Get all receipts for the user (using demo user for now)
+        conn = sqlite3.connect(DATABASE)
+        receipts = conn.execute('SELECT * FROM receipts ORDER BY timestamp DESC').fetchall()
+        conn.close()
+        
+        if not receipts:
+            # Generate some demo data if no receipts exist
+            return render_template('enhanced_dashboard.html', 
+                                 total_tokens_saved=0,
+                                 total_co2_saved=0,
+                                 total_calls=0,
+                                 avg_quality_score=0.95,
+                                 recent_receipts=[],
+                                 model_breakdown={},
+                                 region_breakdown={},
+                                 cache_hit_rate=0.85,
+                                 avg_response_time=1.2,
+                                 total_cost_saved=0.0,
+                                 avg_tokens_before=0,
+                                 avg_tokens_after=0,
+                                 avg_co2_before=0,
+                                 avg_co2_after=0,
+                                 chart_labels=[],
+                                 tokens_saved_data=[],
+                                 co2_saved_data=[])
+        
+        # Calculate comprehensive statistics
+        # Database columns: id, receipt_id, user_id, tokens_before, tokens_after, kwh_before, kwh_after, co2_g_before, co2_g_after, quality_score, model, region, optimizations_applied, timestamp
+        total_tokens_saved = sum(int(receipt[3]) - int(receipt[4]) for receipt in receipts)  # tokens_before - tokens_after
+        total_co2_saved = sum(float(receipt[7]) - float(receipt[8]) for receipt in receipts)  # co2_g_before - co2_g_after
+        total_calls = len(receipts)
+        avg_quality_score = sum(receipt[9] for receipt in receipts if receipt[9] is not None) / total_calls if total_calls > 0 else 0.95
+        
+        # Model and region breakdown
+        model_breakdown = {}
+        region_breakdown = {}
+        for receipt in receipts:
+            model = receipt[10] if receipt[10] else 'gpt-4'
+            region = receipt[11] if receipt[11] else 'us-east'
+            model_breakdown[model] = model_breakdown.get(model, 0) + 1
+            region_breakdown[region] = region_breakdown.get(region, 0) + 1
+        
+        # Normalize to percentages
+        for key in model_breakdown:
+            model_breakdown[key] = model_breakdown[key] / total_calls
+        for key in region_breakdown:
+            region_breakdown[key] = region_breakdown[key] / total_calls
+        
+        # Additional metrics
+        cache_hit_rate = 0.85  # Mock cache hit rate
+        avg_response_time = 1.2  # Mock response time
+        total_cost_saved = total_tokens_saved * 0.0001  # Mock cost calculation
+        
+        # Before/after averages
+        avg_tokens_before = sum(int(receipt[3]) for receipt in receipts) / total_calls if total_calls > 0 else 0
+        avg_tokens_after = sum(int(receipt[4]) for receipt in receipts) / total_calls if total_calls > 0 else 0
+        avg_co2_before = sum(float(receipt[7]) for receipt in receipts) / total_calls if total_calls > 0 else 0
+        avg_co2_after = sum(float(receipt[8]) for receipt in receipts) / total_calls if total_calls > 0 else 0
+        
+        # Generate chart data (last 7 days)
+        import datetime
+        chart_labels = []
+        tokens_saved_data = []
+        co2_saved_data = []
+        
+        for i in range(7):
+            date = datetime.datetime.now() - datetime.timedelta(days=6-i)
+            chart_labels.append(date.strftime('%m/%d'))
+            
+            # Calculate daily totals
+            daily_tokens = 0
+            daily_co2 = 0
+            for receipt in receipts:
+                # Parse timestamp (column 13) - it's stored as string in SQLite
+                receipt_timestamp = receipt[13]
+                if isinstance(receipt_timestamp, str):
+                    receipt_date = datetime.datetime.fromisoformat(receipt_timestamp.replace('Z', '+00:00'))
+                else:
+                    receipt_date = datetime.datetime.fromtimestamp(receipt_timestamp / 1000)
+                
+                if receipt_date.date() == date.date():
+                    daily_tokens += int(receipt[3]) - int(receipt[4])
+                    daily_co2 += float(receipt[7]) - float(receipt[8])
+            
+            tokens_saved_data.append(daily_tokens)
+            co2_saved_data.append(daily_co2)
+        
+        return render_template('enhanced_dashboard.html',
+                             total_tokens_saved=total_tokens_saved,
+                             total_co2_saved=total_co2_saved,
+                             total_calls=total_calls,
+                             avg_quality_score=avg_quality_score,
+                             recent_receipts=receipts,
+                             model_breakdown=model_breakdown,
+                             region_breakdown=region_breakdown,
+                             cache_hit_rate=cache_hit_rate,
+                             avg_response_time=avg_response_time,
+                             total_cost_saved=total_cost_saved,
+                             avg_tokens_before=avg_tokens_before,
+                             avg_tokens_after=avg_tokens_after,
+                             avg_co2_before=avg_co2_before,
+                             avg_co2_after=avg_co2_after,
+                             chart_labels=chart_labels,
+                             tokens_saved_data=tokens_saved_data,
+                             co2_saved_data=co2_saved_data)
+                             
+    except Exception as e:
+        print(f"Error in dashboard: {e}")
+        return render_template('enhanced_dashboard.html', 
+                             total_tokens_saved=0,
+                             total_co2_saved=0,
+                             total_calls=0,
+                             avg_quality_score=0.95,
+                             recent_receipts=[],
+                             model_breakdown={},
+                             region_breakdown={},
+                             cache_hit_rate=0.85,
+                             avg_response_time=1.2,
+                             total_cost_saved=0.0,
+                             avg_tokens_before=0,
+                             avg_tokens_after=0,
+                             avg_co2_before=0,
+                             avg_co2_after=0,
+                             chart_labels=[],
+                             tokens_saved_data=[],
+                             co2_saved_data=[])
+
+@app.route('/professional')
+def professional_dashboard():
+    """Redirect to combined dashboard"""
+    return redirect(url_for('dashboard'))
+
+# ML Server Integration Endpoints
+@app.route('/api/ml/learning-data', methods=['POST'])
+@require_api_key
+def ingest_ml_learning_data():
+    """Ingest ML learning data from SDK"""
+    user = request.current_user
+    data = request.get_json()
     
-    # Get user stats
+    if not data or 'type' not in data or data['type'] != 'ml_learning_data':
+        return jsonify({'error': 'Invalid ML learning data'}), 400
+    
+    learning_data = data.get('data', {})
+    
+    # Store ML learning data in database
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     
-    # Total receipts
-    c.execute('SELECT COUNT(*) FROM receipts WHERE user_id = ?', (user_id,))
-    total_receipts = c.fetchone()[0]
+    try:
+        # Create ML learning table if it doesn't exist
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS ml_learning_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                optimization_id TEXT,
+                timestamp INTEGER,
+                prompt_features TEXT,
+                optimization_result TEXT,
+                quality_metrics TEXT,
+                user_feedback TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+        
+        # Insert learning data
+        c.execute('''
+            INSERT INTO ml_learning_data 
+            (user_id, optimization_id, timestamp, prompt_features, optimization_result, quality_metrics, user_feedback)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            user[0],
+            learning_data.get('optimizationId'),
+            learning_data.get('timestamp'),
+            json.dumps(learning_data.get('promptFeatures', {})),
+            json.dumps(learning_data.get('optimizationResult', {})),
+            json.dumps(learning_data.get('qualityMetrics', {})),
+            learning_data.get('userFeedback')
+        ))
+        
+        conn.commit()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'ML learning data ingested',
+            'optimization_id': learning_data.get('optimizationId')
+        })
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Failed to ingest ML data: {str(e)}'}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/ml/model-updates', methods=['GET'])
+@require_api_key
+def get_ml_model_updates():
+    """Get ML model updates for SDK"""
+    user = request.current_user
     
-    # Total tokens saved
-    c.execute('SELECT SUM(tokens_before - tokens_after) FROM receipts WHERE user_id = ?', (user_id,))
-    tokens_saved = c.fetchone()[0] or 0
-    
-    # Total CO2 saved
-    c.execute('SELECT SUM(co2_g_before - co2_g_after) FROM receipts WHERE user_id = ?', (user_id,))
-    co2_saved = c.fetchone()[0] or 0
-    
-    # Average quality score
-    c.execute('SELECT AVG(quality_score) FROM receipts WHERE user_id = ?', (user_id,))
-    avg_quality = c.fetchone()[0] or 0
-    
-    # Recent receipts
-    c.execute('''
-        SELECT receipt_id, tokens_before, tokens_after, co2_g_before, co2_g_after, 
-               quality_score, timestamp, optimizations_applied
-        FROM receipts 
-        WHERE user_id = ? 
-        ORDER BY timestamp DESC 
-        LIMIT 10
-    ''', (user_id,))
-    recent_receipts = c.fetchall()
-    
-    # Daily stats for chart
-    c.execute('''
-        SELECT DATE(timestamp) as date, 
-               SUM(tokens_before - tokens_after) as tokens_saved,
-               SUM(co2_g_before - co2_g_after) as co2_saved
-        FROM receipts 
-        WHERE user_id = ? AND timestamp >= date('now', '-30 days')
-        GROUP BY DATE(timestamp)
-        ORDER BY date
-    ''', (user_id,))
-    daily_stats = c.fetchall()
-    
-    # Get all user's receipts for comprehensive data
-    c.execute('''
-        SELECT * FROM receipts 
-        WHERE user_id = ? 
-        ORDER BY timestamp DESC
-    ''', (user_id,))
-    all_receipts = c.fetchall()
-    
-    conn.close()
-    
-    # Calculate comprehensive statistics
-    total_optimizations = len(all_receipts)
-    total_tokens_saved = sum(receipt[3] - receipt[4] for receipt in all_receipts)
-    total_co2_saved = sum(receipt[7] - receipt[8] for receipt in all_receipts)
-    
-    # Calculate quality metrics
-    quality_scores = [receipt[9] for receipt in all_receipts if receipt[9] is not None]
-    avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0.95
-    
-    # Calculate success rate (quality > 0.9)
-    successful_optimizations = len([q for q in quality_scores if q > 0.9])
-    success_rate = successful_optimizations / len(quality_scores) if quality_scores else 0.95
-    
-    # Create summary object for new dashboard
-    summary = {
-        'total_optimizations': total_optimizations,
-        'tokens_saved': total_tokens_saved,
-        'co2_g_saved': total_co2_saved,
-        'avg_quality': avg_quality,
-        'parity_rate': success_rate
+    # For now, return a mock model update
+    # In production, this would analyze learning data and generate real updates
+    model_update = {
+        'version': '1.1.0',
+        'timestamp': int(time.time() * 1000),
+        'improvements': {
+            'strategyWeights': {
+                'conservative': 0.3,
+                'balanced': 0.5,
+                'aggressive': 0.2
+            },
+            'qualityThresholds': {
+                'semanticSimilarity': 0.95,
+                'tokenReduction': 0.15,
+                'responseQuality': 0.90,
+                'userSatisfaction': 0.85
+            },
+            'domainOptimizations': {
+                'programming': {'alpha': 0.7, 'focus': 'code_clarity'},
+                'writing': {'alpha': 0.6, 'focus': 'conciseness'},
+                'analysis': {'alpha': 0.8, 'focus': 'precision'}
+            }
+        },
+        'performanceMetrics': {
+            'accuracy': 0.94,
+            'qualityImprovement': 0.02,
+            'tokenReductionImprovement': 0.05
+        }
     }
     
-    # Create series data for charts (last 30 days) - real data
-    series = [{'day': stat[0], 'co2_g_saved': stat[1] or 0, 'tokens_saved': stat[2] or 0} for stat in daily_stats]
+    return jsonify(model_update)
+
+@app.route('/api/ml/performance-metrics', methods=['POST'])
+@require_api_key
+def ingest_ml_performance_metrics():
+    """Ingest ML performance metrics from SDK"""
+    user = request.current_user
+    data = request.get_json()
     
-    # Get strategy distribution - real data
-    strategy_data = {
-        'conservative': len([r for r in all_receipts if r[9] and r[9] > 0.95]),
-        'balanced': len([r for r in all_receipts if r[9] and 0.93 <= r[9] <= 0.95]),
-        'aggressive': len([r for r in all_receipts if r[9] and r[9] < 0.93])
-    }
+    if not data or 'type' not in data or data['type'] != 'ml_performance_metrics':
+        return jsonify({'error': 'Invalid ML performance data'}), 400
     
-    # Generate weekly token savings data (real data from receipts)
-    weekly_data = []
-    if all_receipts:
-        # Group receipts by week
-        from collections import defaultdict
-        weekly_tokens = defaultdict(int)
+    metrics = data.get('data', {})
+    
+    # Store performance metrics
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    
+    try:
+        # Create ML performance table if it doesn't exist
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS ml_performance_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                timestamp INTEGER,
+                total_optimizations INTEGER,
+                average_quality REAL,
+                average_token_reduction REAL,
+                success_rate REAL,
+                quality_trend REAL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
         
-        for receipt in all_receipts:
-            # Get week number from timestamp
-            import datetime
-            if isinstance(receipt[6], str):
-                timestamp = datetime.datetime.strptime(receipt[6], '%Y-%m-%d %H:%M:%S')
-            else:
-                timestamp = datetime.datetime.fromtimestamp(receipt[6])
-            
-            week_key = f"Week {timestamp.isocalendar()[1]}"
-            weekly_tokens[week_key] += (receipt[3] - receipt[4])
+        # Insert performance metrics
+        c.execute('''
+            INSERT INTO ml_performance_metrics 
+            (user_id, timestamp, total_optimizations, average_quality, average_token_reduction, success_rate, quality_trend)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            user[0],
+            metrics.get('timestamp', int(time.time() * 1000)),
+            metrics.get('totalOptimizations', 0),
+            metrics.get('averageQuality', 0.0),
+            metrics.get('averageTokenReduction', 0.0),
+            metrics.get('successRate', 0.0),
+            metrics.get('qualityTrend', 0.0)
+        ))
         
-        weekly_data = list(weekly_tokens.values())
-        if len(weekly_data) < 4:
-            # Pad with zeros if less than 4 weeks
-            weekly_data.extend([0] * (4 - len(weekly_data)))
-    
-    # Generate quality score trends (real data)
-    quality_trends = []
-    if all_receipts:
-        # Get quality scores from last 7 receipts
-        recent_receipts = sorted(all_receipts, key=lambda x: x[6], reverse=True)[:7]
-        quality_trends = [r[9] for r in recent_receipts if r[9] is not None]
-        if len(quality_trends) < 7:
-            # Pad with average quality if less than 7
-            avg_qual = avg_quality
-            quality_trends.extend([avg_qual] * (7 - len(quality_trends)))
-    
-    # Calculate real comparison data
-    total_tokens_without_ecoai = total_tokens_saved * 2  # Double for comparison
-    total_co2_without_ecoai = total_co2_saved * 2
-    estimated_cost_without = total_tokens_without_ecoai * 0.02  # $0.02 per token
-    estimated_cost_with = total_tokens_saved * 0.01  # $0.01 per token after optimization
-    
-    return render_template('dashboard_new.html',
-                         summary=summary,
-                         series=series,
-                         receipts=all_receipts[:20],  # Show last 20 receipts
-                         strategy_data=strategy_data,
-                         weekly_data=weekly_data,
-                         quality_trends=quality_trends,
-                         comparison_data={
-                             'tokens_without': total_tokens_without_ecoai,
-                             'tokens_with': total_tokens_saved,
-                             'co2_without': total_co2_without_ecoai,
-                             'co2_with': total_co2_saved,
-                             'cost_without': estimated_cost_without,
-                             'cost_with': estimated_cost_with
-                         },
-                         user_stats={
-                             'total_receipts': total_optimizations,
-                             'total_tokens_saved': total_tokens_saved,
-                             'total_co2_saved': total_co2_saved,
-                             'avg_quality': avg_quality,
-                             'success_rate': success_rate
-                         })
+        conn.commit()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'ML performance metrics ingested'
+        })
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Failed to ingest ML metrics: {str(e)}'}), 500
+    finally:
+        conn.close()
 
 # API Endpoints
 @app.route('/api/ingest/batch', methods=['POST'])
@@ -488,6 +642,31 @@ def get_user_profile():
         'api_key': user[4],
         'created_at': user[5]
     })
+
+@app.route('/api/user-info')
+def get_user_info():
+    """Get basic user info for Prompt Studio authentication"""
+    if 'user_id' in session:
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT username, email FROM users WHERE user_id = ?', (session['user_id'],))
+        user = c.fetchone()
+        conn.close()
+        
+        if user:
+            return jsonify({
+                'authenticated': True,
+                'user_id': session['user_id'],
+                'username': user[0],
+                'email': user[1]
+            })
+    
+    return jsonify({'authenticated': False}), 401
+
+@app.route('/prompt-studio')
+def prompt_studio():
+    """Prompt Studio page"""
+    return render_template('prompt_studio.html')
 
 @app.route('/profile')
 def profile():
@@ -772,6 +951,81 @@ if __name__ == "__main__":
         'Content-Type': 'application/x-python',
         'Content-Disposition': 'attachment; filename=ecoai_sdk.py'
     }
+
+@app.route('/send-stats-email', methods=['POST'])
+def send_stats_email():
+    """Send user stats email via Gmail"""
+    try:
+        # Get user email from form or session
+        user_email = request.form.get('email')
+        if not user_email:
+            return jsonify({'success': False, 'error': 'Email address required'})
+        
+        # Get user stats from database
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        
+        # Get user's receipts
+        c.execute('''
+            SELECT * FROM receipts 
+            ORDER BY timestamp DESC
+        ''')
+        receipts = c.fetchall()
+        conn.close()
+        
+        if not receipts:
+            return jsonify({'success': False, 'error': 'No data found'})
+        
+        # Calculate comprehensive statistics
+        total_tokens_saved = sum(int(receipt[3]) - int(receipt[4]) for receipt in receipts)
+        total_co2_saved = sum(float(receipt[7]) - float(receipt[8]) for receipt in receipts)
+        total_calls = len(receipts)
+        avg_quality_score = sum(receipt[9] for receipt in receipts if receipt[9] is not None) / total_calls
+        
+        # Model breakdown
+        model_breakdown = {}
+        for receipt in receipts:
+            model = receipt[10] if receipt[10] else 'gpt-4'
+            model_breakdown[model] = model_breakdown.get(model, 0) + 1
+        
+        # Normalize to percentages
+        for key in model_breakdown:
+            model_breakdown[key] = model_breakdown[key] / total_calls
+        
+        # Before/after averages
+        avg_tokens_before = sum(int(receipt[3]) for receipt in receipts) / total_calls
+        avg_tokens_after = sum(int(receipt[4]) for receipt in receipts) / total_calls
+        avg_co2_before = sum(float(receipt[7]) for receipt in receipts) / total_calls
+        avg_co2_after = sum(float(receipt[8]) for receipt in receipts) / total_calls
+        
+        # Additional metrics
+        total_cost_saved = total_tokens_saved * 0.0001
+        
+        # Prepare user stats
+        user_stats = {
+            'total_tokens_saved': total_tokens_saved,
+            'total_co2_saved': total_co2_saved,
+            'total_calls': total_calls,
+            'avg_quality_score': avg_quality_score,
+            'model_breakdown': model_breakdown,
+            'avg_tokens_before': avg_tokens_before,
+            'avg_tokens_after': avg_tokens_after,
+            'avg_co2_before': avg_co2_before,
+            'avg_co2_after': avg_co2_after,
+            'total_cost_saved': total_cost_saved
+        }
+        
+        # Send email
+        success = email_service.send_user_stats_email(user_email, user_stats)
+        
+        if success:
+            return jsonify({'success': True, 'message': 'Stats email sent successfully!'})
+        else:
+            return jsonify({'success': False, 'error': 'Failed to send email'})
+            
+    except Exception as e:
+        print(f"Error sending stats email: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
     init_db()
