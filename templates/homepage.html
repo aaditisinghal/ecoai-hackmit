@@ -110,6 +110,30 @@
         </div>
     </section>
 
+    <!-- Video Section -->
+    <section class="video-section">
+        <div class="container">
+            <div class="video-content">
+                <div class="video-text">
+                    <h2 class="video-title">Choose <span class="gradient-text">ecoai.club</span> Today!</h2>
+                    <p class="video-subtitle">See EcoAI in action - watch how we optimize prompts and reduce carbon footprint while maintaining quality.</p>
+                    <div class="video-cta">
+                        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('login') }}'">
+                            <i class="fas fa-play"></i>
+                            Get Started Now
+                        </button>
+                    </div>
+                </div>
+                <div class="video-player">
+                    <video controls poster="{{ url_for('static', filename='LOGOECOAI.png') }}" class="demo-video">
+                        <source src="{{ url_for('static', filename='ecoai.mp4') }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="container">
