@@ -122,16 +122,16 @@ body {
 .nav-link-studio {
     background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
     color: white !important;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 1rem;
     transition: all 0.3s ease;
     border: 1px solid transparent;
 }
 
 .nav-link-studio:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
     border-color: var(--primary-green);
 }
@@ -690,82 +690,6 @@ body {
     color: var(--text-muted);
 }
 
-/* Video Section */
-.video-section {
-    padding: 6rem 0;
-    background: var(--dark-surface);
-    position: relative;
-    overflow: hidden;
-}
-
-.video-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(52, 211, 153, 0.05), rgba(96, 165, 250, 0.05));
-    pointer-events: none;
-}
-
-.video-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-}
-
-.video-text {
-    padding-right: 2rem;
-}
-
-.video-title {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    line-height: 1.2;
-}
-
-.video-subtitle {
-    font-size: 1.25rem;
-    color: var(--text-secondary);
-    margin-bottom: 2.5rem;
-    line-height: 1.6;
-}
-
-.video-cta {
-    margin-top: 2rem;
-}
-
-.video-player {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-}
-
-.demo-video {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 16px;
-}
-
-.video-player::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(96, 165, 250, 0.1));
-    pointer-events: none;
-    border-radius: 16px;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -799,20 +723,6 @@ body {
     
     .footer-links {
         grid-template-columns: 1fr;
-    }
-    
-    .video-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        text-align: center;
-    }
-    
-    .video-text {
-        padding-right: 0;
-    }
-    
-    .video-title {
-        font-size: 2.5rem;
     }
 }
 

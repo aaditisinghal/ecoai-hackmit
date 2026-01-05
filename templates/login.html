@@ -63,6 +63,25 @@
                 </div>
             </form>
             
+            <!-- OAuth Login Options -->
+            <div class="oauth-section">
+                <div class="divider">
+                    <span>or continue with</span>
+                </div>
+                
+                <div class="oauth-buttons">
+                    <a href="{{ url_for('google_login') }}" class="oauth-btn google-btn">
+                        <i class="fab fa-google"></i>
+                        <span>Google</span>
+                    </a>
+                    
+                    <a href="{{ url_for('apple_login') }}" class="oauth-btn apple-btn">
+                        <i class="fab fa-apple"></i>
+                        <span>Apple</span>
+                    </a>
+                </div>
+            </div>
+            
             <div class="text-center">
                 <p class="text-muted">Don't have an account? 
                     <a href="{{ url_for('signup') }}" class="text-decoration-none" style="color: var(--primary-green);">Sign up</a>
@@ -75,5 +94,97 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        /* OAuth Styles */
+        .oauth-section {
+            margin: 1.5rem 0;
+        }
+        
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border-color);
+        }
+        
+        .divider span {
+            background: var(--bg-primary);
+            padding: 0 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .oauth-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .oauth-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .oauth-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--primary-green);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        
+        .google-btn:hover {
+            border-color: #4285f4;
+        }
+        
+        .apple-btn:hover {
+            border-color: #000000;
+        }
+        
+        .oauth-btn i {
+            font-size: 1.1rem;
+        }
+        
+        .google-btn i {
+            color: #4285f4;
+        }
+        
+        .apple-btn i {
+            color: #000000;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 576px) {
+            .oauth-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .oauth-btn {
+                padding: 1rem;
+            }
+        }
+    </style>
 </body>
 </html>
