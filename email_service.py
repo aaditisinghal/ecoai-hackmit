@@ -134,12 +134,7 @@ class EmailService:
                 .co2-saved {{ font-size: 1.5em; color: #059669; font-weight: bold; }}
                 .retailer-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0; }}
                 .retailer-card {{ background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #e9ecef; }}
-                .retailer-logo {{ font-weight: bold; margin-bottom: 10px; padding: 8px; border-radius: 4px; }}
-                .best-buy {{ background: #1e3a8a; color: white; font-size: 1.1em; }}
-                .macys {{ background: #dc2626; color: white; font-size: 1.3em; font-style: italic; }}
-                .amazon {{ background: #fbbf24; color: #1f2937; font-size: 1.2em; }}
-                .walmart {{ background: #1e40af; color: white; font-size: 1.1em; }}
-                .target {{ background: #dc2626; color: white; font-size: 1.2em; }}
+                .retailer-logo {{ margin-bottom: 10px; padding: 8px; border-radius: 4px; background: white; }}
                 .discount-code {{ font-size: 1.3em; font-weight: bold; color: #34D399; margin: 8px 0; }}
                 .discount-text {{ font-size: 0.9em; color: #666; }}
                 .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 0.9em; }}
@@ -197,31 +192,41 @@ class EmailService:
                         
                         <div class="retailer-grid">
                             <div class="retailer-card">
-                                <div class="retailer-logo best-buy">BEST<br>BUY</div>
+                                <div class="retailer-logo">
+                                    <img src="https://ecoai-portal-krishna-eecfd7b483f0.herokuapp.com/static/bestbuy.png.jpeg" alt="Best Buy" style="max-width: 80px; height: auto;">
+                                </div>
                                 <div class="discount-code">ECO15</div>
                                 <div class="discount-text">15% OFF Electronics</div>
                             </div>
                             
                             <div class="retailer-card">
-                                <div class="retailer-logo macys">macy's</div>
+                                <div class="retailer-logo">
+                                    <img src="https://ecoai-portal-krishna-eecfd7b483f0.herokuapp.com/static/macy.png.jpeg" alt="Macy's" style="max-width: 80px; height: auto;">
+                                </div>
                                 <div class="discount-code">ECO20</div>
                                 <div class="discount-text">20% OFF Fashion</div>
                             </div>
                             
                             <div class="retailer-card">
-                                <div class="retailer-logo amazon">amazon</div>
+                                <div class="retailer-logo">
+                                    <img src="https://ecoai-portal-krishna-eecfd7b483f0.herokuapp.com/static/amazon.png.jpeg" alt="Amazon" style="max-width: 80px; height: auto;">
+                                </div>
                                 <div class="discount-code">ECO10</div>
                                 <div class="discount-text">10% OFF Eco Products</div>
                             </div>
                             
                             <div class="retailer-card">
-                                <div class="retailer-logo walmart">Walmart</div>
+                                <div class="retailer-logo">
+                                    <img src="https://ecoai-portal-krishna-eecfd7b483f0.herokuapp.com/static/walmart.png.jpeg" alt="Walmart" style="max-width: 80px; height: auto;">
+                                </div>
                                 <div class="discount-code">ECO12</div>
                                 <div class="discount-text">12% OFF Groceries</div>
                             </div>
                             
                             <div class="retailer-card">
-                                <div class="retailer-logo target">TARGET</div>
+                                <div class="retailer-logo">
+                                    <img src="https://ecoai-portal-krishna-eecfd7b483f0.herokuapp.com/static/target.png.jpeg" alt="Target" style="max-width: 80px; height: auto;">
+                                </div>
                                 <div class="discount-code">ECO18</div>
                                 <div class="discount-text">18% OFF Home Goods</div>
                             </div>
