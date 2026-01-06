@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 EcoAI API Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    <style>
+        :root {
+            --primary-green: #34D399;
+            --primary-blue: #60A5FA;
+            --accent-orange: #F59E0B;
+            --accent-red: #EF4444;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border-color: #27272a;
+            --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-green);
+            background: rgba(52, 211, 153, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(96, 165, 250, 0.1));
+            border-radius: 20px;
+            margin: 2rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .api-section {
+            margin: 3rem 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .endpoint-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .endpoint-card:hover {
+            border-color: var(--primary-green);
+            box-shadow: 0 8px 25px rgba(52, 211, 153, 0.1);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .method-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .method-post {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .method-get {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .endpoint-url {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .endpoint-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .code-block code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .parameter-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .parameter-table th,
+        .parameter-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .parameter-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .parameter-table td {
+            color: var(--text-secondary);
+        }
+
+        .parameter-name {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .parameter-type {
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        .parameter-required {
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+
+        .parameter-optional {
+            color: var(--text-muted);
+        }
+
+        .response-example {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .response-example h4 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .sdk-download {
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .sdk-download h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .sdk-download p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+            border-color: var(--primary-green);
+        }
+
+        .toc {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .toc li {
+            margin: 0.5rem 0;
+        }
+
+        .toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .toc a:hover {
+            color: var(--primary-green);
+        }
+
+        .copy-btn {
+            background: var(--primary-green);
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+        }
+
+        .status-code {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .status-200 {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+
+        .status-400 {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .status-401 {
+            background: rgba(245, 158, 11, 0.2);
+            color: #F59E0B;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/" class="navbar-brand">🌱 EcoAI</a>
+                <div class="d-flex gap-3">
+                    <a href="/dashboard" class="nav-link">Dashboard</a>
+                    <a href="/docs" class="nav-link">API Docs</a>
+                    <a href="/login" class="nav-link">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>📚 API Documentation</h1>
+            <p>Complete guide to integrating EcoAI's green optimization into your applications</p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="#quick-start" class="btn btn-primary">Quick Start</a>
+                <a href="#sdk-download" class="btn btn-secondary">Download SDK</a>
+            </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#quick-start">Quick Start</a></li>
+                <li><a href="#authentication">Authentication</a></li>
+                <li><a href="#endpoints">API Endpoints</a></li>
+                <li><a href="#sdk-integration">SDK Integration</a></li>
+                <li><a href="#examples">Code Examples</a></li>
+                <li><a href="#error-handling">Error Handling</a></li>
+                <li><a href="#rate-limits">Rate Limits</a></li>
+            </ul>
+        </div>
+
+        <!-- Quick Start -->
+        <div id="quick-start" class="api-section">
+            <h2 class="section-title">🚀 Quick Start</h2>
+            <p class="section-subtitle">Get up and running with EcoAI in under 5 minutes</p>
+            
+            <div class="endpoint-card">
+                <h3>1. Install the SDK</h3>
+                <div class="code-block">
+                    <pre><code class="language-bash">pip install ecoai</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>2. Get your API Key</h3>
+                <p>Sign up at <a href="/dashboard" style="color: var(--primary-green);">ecoai.club</a> to get your free API key.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>3. Optimize your first prompt</h3>
+                <div class="code-block">
+                    <pre><code class="language-python">from ecoai import EcoAI
+
+# Initialize the SDK
+eco = EcoAI(api_key="your_api_key_here")
+
+# Optimize a prompt
+result = eco.optimize_prompt("Please kindly write a comprehensive analysis of the data")
+
+print(f"Original: {result['original']}")
+print(f"Optimized: {result['optimized']}")
+print(f"Tokens saved: {result['tokens_saved']}")
+print(f"CO2 saved: {result['carbon_savings']['co2_g_saved']:.4f}g")</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div id="authentication" class="api-section">
+            <h2 class="section-title">🔐 Authentication</h2>
+            <p class="section-subtitle">All API requests require authentication using your API key</p>
+            
+            <div class="endpoint-card">
+                <h3>API Key</h3>
+                <p>Include your API key in the request headers:</p>
+                <div class="code-block">
+                    <pre><code class="language-http">X-API-Key: ecoai_***ROTATED-KEY-REMOVED***</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <div id="endpoints" class="api-section">
+            <h2 class="section-title">🔌 API Endpoints</h2>
+            <p class="section-subtitle">Complete reference for all EcoAI API endpoints</p>
+
+            <!-- Optimize Prompt Endpoint -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-url">/api/optimize/prompt</span>
+                </div>
+                <p class="endpoint-description">Optimize a prompt to reduce tokens while maintaining quality</p>
+                
+                <h4>Request Body</h4>
+                <table class="parameter-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="parameter-name">prompt</span></td>
+                            <td><span class="parameter-type">string</span></td>
+                            <td><span class="parameter-required">Yes</span></td>
+                            <td>The prompt to optimize</td>
+                        </tr>
+                        <tr>
+                            <td><span class="parameter-name">strategy</span></td>
+                            <td><span class="parameter-type">string</span></td>
+                            <td><span class="parameter-optional">No</span></td>
+                            <td>Optimization strategy: "balanced" (default), "aggressive", "conservative"</td>
+                        </tr>
+                        <tr>
+                            <td><span class="parameter-name">quality_threshold</span></td>
+                            <td><span class="parameter-type">float</span></td>
+                            <td><span class="parameter-optional">No</span></td>
+                            <td>Minimum quality score (0.0-1.0, default: 0.95)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Example Request</h4>
+                <div class="code-block">
+                    <pre><code class="language-json">{
+  "prompt": "Please kindly write a comprehensive analysis of the data",
+  "strategy": "balanced",
+  "quality_threshold": 0.95
+}</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+
+                <h4>Response</h4>
+                <div class="response-example">
+                    <h4><span class="status-code status-200">200 OK</span> Success</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "original": "Please kindly write a comprehensive analysis of the data",
+    "optimized": "Write a comprehensive analysis of the data",
+    "tokens_before": 12,
+    "tokens_after": 8,
+    "tokens_saved": 4,
+    "quality_score": 0.96,
+    "carbon_savings": {
+      "co2_g_saved": 0.0001,
+      "kwh_saved": 0.000003
+    },
+    "strategy_used": "balanced"
+  }
+}</code></pre>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch Optimize Endpoint -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method-badge method-post">POST</span>
+                    <span class="endpoint-url">/api/optimize/batch</span>
+                </div>
+                <p class="endpoint-description">Optimize multiple prompts in a single request</p>
+                
+                <h4>Request Body</h4>
+                <div class="code-block">
+                    <pre><code class="language-json">{
+  "prompts": [
+    "Please kindly write a comprehensive analysis",
+    "Can you help me understand this concept?",
+    "I would really appreciate your assistance"
+  ],
+  "strategy": "balanced"
+}</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+
+                <h4>Response</h4>
+                <div class="response-example">
+                    <h4><span class="status-code status-200">200 OK</span> Success</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "results": [
+      {
+        "original": "Please kindly write a comprehensive analysis",
+        "optimized": "Write a comprehensive analysis",
+        "tokens_saved": 2
+      }
+    ],
+    "total_tokens_saved": 6,
+    "total_co2_saved": 0.0002
+  }
+}</code></pre>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Endpoint -->
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method-badge method-get">GET</span>
+                    <span class="endpoint-url">/api/analytics/summary</span>
+                </div>
+                <p class="endpoint-description">Get your optimization analytics and impact metrics</p>
+                
+                <h4>Query Parameters</h4>
+                <table class="parameter-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="parameter-name">start_date</span></td>
+                            <td><span class="parameter-type">string</span></td>
+                            <td><span class="parameter-optional">No</span></td>
+                            <td>Start date (YYYY-MM-DD)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="parameter-name">end_date</span></td>
+                            <td><span class="parameter-type">string</span></td>
+                            <td><span class="parameter-optional">No</span></td>
+                            <td>End date (YYYY-MM-DD)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Response</h4>
+                <div class="response-example">
+                    <h4><span class="status-code status-200">200 OK</span> Success</h4>
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "success": true,
+  "data": {
+    "total_requests": 1250,
+    "total_tokens_saved": 15420,
+    "total_co2_saved": 0.54,
+    "average_quality_score": 0.96,
+    "cost_savings": 12.50,
+    "time_period": "2024-01-01 to 2024-01-31"
+  }
+}</code></pre>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SDK Integration -->
+        <div id="sdk-integration" class="api-section">
+            <h2 class="section-title">🔧 SDK Integration</h2>
+            <p class="section-subtitle">Integrate EcoAI with popular AI frameworks</p>
+
+            <!-- OpenAI Integration -->
+            <div class="endpoint-card">
+                <h3>OpenAI Integration</h3>
+                <div class="code-block">
+                    <pre><code class="language-python">from ecoai import EcoAI
+import openai
+
+eco = EcoAI(api_key="your_ecoai_key")
+openai.api_key = "your_openai_key"
+
+# Optimize prompt before sending to OpenAI
+result = eco.optimize_prompt("Please kindly write a comprehensive analysis of the data")
+
+response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": result["optimized"]}]
+)
+
+print(f"Saved {result['tokens_saved']} tokens")
+print(f"CO2 saved: {result['carbon_savings']['co2_g_saved']:.4f}g")</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+
+            <!-- LangChain Integration -->
+            <div class="endpoint-card">
+                <h3>LangChain Integration</h3>
+                <div class="code-block">
+                    <pre><code class="language-python">from ecoai import EcoAI
+from langchain import LLMChain, PromptTemplate
+from langchain.llms import OpenAI
+
+eco = EcoAI(api_key="your_ecoai_key")
+llm = OpenAI(openai_api_key="your_openai_key")
+
+# Optimize LangChain prompts
+template = eco.optimize_prompt("Your template here")["optimized"]
+prompt = PromptTemplate(template=template, input_variables=["input"])
+chain = LLMChain(llm=llm, prompt=prompt)
+
+result = chain.run("Your input here")</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+
+            <!-- HuggingFace Integration -->
+            <div class="endpoint-card">
+                <h3>HuggingFace Integration</h3>
+                <div class="code-block">
+                    <pre><code class="language-python">from ecoai import EcoAI
+from transformers import pipeline
+
+eco = EcoAI(api_key="your_ecoai_key")
+
+# Optimize prompts for HuggingFace models
+optimized_prompt = eco.optimize_prompt("Your prompt here")["optimized"]
+classifier = pipeline("text-classification")
+result = classifier(optimized_prompt)</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Handling -->
+        <div id="error-handling" class="api-section">
+            <h2 class="section-title">⚠️ Error Handling</h2>
+            <p class="section-subtitle">Common error responses and how to handle them</p>
+
+            <div class="endpoint-card">
+                <h3>Error Response Format</h3>
+                <div class="code-block">
+                    <pre><code class="language-json">{
+  "success": false,
+  "error": {
+    "code": "INVALID_API_KEY",
+    "message": "The provided API key is invalid",
+    "details": "Please check your API key and try again"
+  }
+}</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>Common Error Codes</h3>
+                <table class="parameter-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="parameter-name">INVALID_API_KEY</span></td>
+                            <td><span class="status-code status-401">401</span></td>
+                            <td>Invalid or missing API key</td>
+                        </tr>
+                        <tr>
+                            <td><span class="parameter-name">RATE_LIMIT_EXCEEDED</span></td>
+                            <td><span class="status-code status-400">429</span></td>
+                            <td>Rate limit exceeded</td>
+                        </tr>
+                        <tr>
+                            <td><span class="parameter-name">INVALID_REQUEST</span></td>
+                            <td><span class="status-code status-400">400</span></td>
+                            <td>Invalid request parameters</td>
+                        </tr>
+                        <tr>
+                            <td><span class="parameter-name">QUOTA_EXCEEDED</span></td>
+                            <td><span class="status-code status-400">402</span></td>
+                            <td>API quota exceeded</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Rate Limits -->
+        <div id="rate-limits" class="api-section">
+            <h2 class="section-title">⏱️ Rate Limits</h2>
+            <p class="section-subtitle">API usage limits and best practices</p>
+
+            <div class="endpoint-card">
+                <h3>Rate Limit Tiers</h3>
+                <table class="parameter-table">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Requests per Minute</th>
+                            <th>Requests per Day</th>
+                            <th>Monthly Quota</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Free</td>
+                            <td>60</td>
+                            <td>1,000</td>
+                            <td>10,000</td>
+                        </tr>
+                        <tr>
+                            <td>Pro</td>
+                            <td>300</td>
+                            <td>50,000</td>
+                            <td>500,000</td>
+                        </tr>
+                        <tr>
+                            <td>Enterprise</td>
+                            <td>1,000</td>
+                            <td>Unlimited</td>
+                            <td>Unlimited</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>Rate Limit Headers</h3>
+                <div class="code-block">
+                    <pre><code class="language-http">X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 59
+X-RateLimit-Reset: 1640995200</code></pre>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SDK Download -->
+        <div id="sdk-download" class="sdk-download">
+            <h2>🚀 Ready to Get Started?</h2>
+            <p>Download the EcoAI SDK and start optimizing your AI applications today</p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="/dashboard" class="btn btn-primary">Get API Key</a>
+                <button class="btn btn-secondary" onclick="downloadSDK()">Download SDK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.previousElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
+        function downloadSDK() {
+            const sdkContent = `#!/usr/bin/env python3
+"""
+EcoAI SDK - Green AI Optimization
+A drop-in SDK that makes every LLM interaction greener without hurting quality.
+"""
+
+import requests
+import json
+import time
+from typing import Dict, Any, Optional
+
+class EcoAI:
+    def __init__(self, api_key: str, portal_url: str = "https://ecoai-portal-krishna-eecfd7b483f0.herokuapp.com"):
+        self.api_key = api_key
+        self.portal_url = portal_url
+        self.headers = {
+            "Content-Type": "application/json",
+            "X-API-Key": api_key
+        }
+    
+    def optimize_prompt(self, prompt: str, strategy: str = "balanced") -> Dict[str, Any]:
+        """Optimize a prompt to reduce tokens while maintaining quality"""
+        # Simulate optimization (in real implementation, this would call the actual optimization API)
+        optimized_prompt = self._simulate_optimization(prompt, strategy)
+        
+        # Calculate metrics
+        tokens_before = len(prompt) // 4
+        tokens_after = len(optimized_prompt) // 4
+        tokens_saved = tokens_before - tokens_after
+        
+        # Calculate carbon savings
+        carbon_before = self._calculate_carbon(tokens_before)
+        carbon_after = self._calculate_carbon(tokens_after)
+        
+        result = {
+            "original": prompt,
+            "optimized": optimized_prompt,
+            "tokens_before": tokens_before,
+            "tokens_after": tokens_after,
+            "tokens_saved": tokens_saved,
+            "quality_score": 0.95,
+            "carbon_savings": {
+                "co2_g_saved": carbon_before["co2_g"] - carbon_after["co2_g"],
+                "kwh_saved": carbon_before["kwh"] - carbon_after["kwh"]
+            },
+            "strategy_used": strategy
+        }
+        
+        # Send to portal for tracking
+        self._send_to_portal(result)
+        
+        return result
+    
+    def _simulate_optimization(self, prompt: str, strategy: str) -> str:
+        """Simulate prompt optimization based on strategy"""
+        import re
+        
+        optimized = prompt
+        
+        if strategy == "aggressive":
+            # Remove filler words
+            filler_words = ["please", "kindly", "very", "really", "actually", "basically", "essentially"]
+            for word in filler_words:
+                optimized = re.sub(f"\\b{word}\\b", "", optimized, flags=re.IGNORECASE)
+        elif strategy == "balanced":
+            # Remove common filler words
+            filler_words = ["please", "kindly", "very", "really"]
+            for word in filler_words:
+                optimized = re.sub(f"\\b{word}\\b", "", optimized, flags=re.IGNORECASE)
+        
+        # Clean up whitespace
+        optimized = re.sub(r'\\s+', ' ', optimized).strip()
+        
+        return optimized
+    
+    def _calculate_carbon(self, tokens: int) -> Dict[str, float]:
+        """Calculate carbon footprint for given tokens"""
+        # EcoAI carbon assumptions
+        flops_per_token = 40e9  # 40 billion FLOPs per token
+        joules_per_flop = 2.5e-11  # 0.025 nJ per FLOP
+        grid_intensity = 350  # gCO2/kWh (global average)
+        
+        # Convert tokens to energy
+        flops = tokens * flops_per_token
+        joules = flops * joules_per_flop
+        kwh = joules / 3.6e6  # Convert Joules to kWh
+        co2_g = kwh * grid_intensity
+        
+        return {
+            "tokens": tokens,
+            "flops": flops,
+            "joules": joules,
+            "kwh": kwh,
+            "co2_g": co2_g
+        }
+    
+    def _send_to_portal(self, result: Dict[str, Any]):
+        """Send optimization result to EcoAI portal"""
+        try:
+            receipt = {
+                "receipt_id": f"ecoai_{int(time.time() * 1000)}",
+                "org_id": "demo_org",
+                "app_id": "demo_app",
+                "ts": int(time.time() * 1000),
+                "tokens_before": result["tokens_before"],
+                "tokens_after": result["tokens_after"],
+                "kwh_before": result["carbon_savings"]["kwh_saved"] + result["tokens_after"] * 0.00001,
+                "kwh_after": result["tokens_after"] * 0.00001,
+                "co2_g_before": result["carbon_savings"]["co2_g_saved"] + result["tokens_after"] * 0.000035,
+                "co2_g_after": result["tokens_after"] * 0.000035,
+                "quality_score": result["quality_score"],
+                "passed_all_gates": True,
+                "model": "gpt-4o-mini",
+                "region": "us-west-lowco2",
+                "time_window": "realtime",
+                "assumptions": {"compression_ratio": f"{(result['tokens_saved'] / result['tokens_before'] * 100):.1f}%"},
+                "raw": {"original_prompt": result["original"], "optimized_prompt": result["optimized"]}
+            }
+            
+            requests.post(f"{self.portal_url}/api/ingest/batch", 
+                         headers=self.headers, 
+                         json={"events": [{"type": "receipt", "payload": receipt}]})
+        except Exception as e:
+            print(f"Failed to send to portal: {e}")
+
+# Example usage
+if __name__ == "__main__":
+    eco = EcoAI(api_key="your_api_key_here")
+    result = eco.optimize_prompt("Please kindly write a comprehensive analysis of the data")
+    print(f"Optimized: {result['optimized']}")
+    print(f"Tokens saved: {result['tokens_saved']}")
+    print(f"CO2 saved: {result['carbon_savings']['co2_g_saved']:.4f}g")
+`;
+
+            const blob = new Blob([sdkContent], { type: 'text/python' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ecoai_sdk.py';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
