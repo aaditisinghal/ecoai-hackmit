@@ -1287,17 +1287,34 @@
 
         // Cost Savings Chart
         const costSavingsCtx = document.getElementById('costSavingsChart').getContext('2d');
+        
+        // Debug logging
+        const chartLabels = {{ chart_labels|safe }};
+        const costSavedData = {{ cost_saved_data|safe }};
+        console.log('Cost Savings Chart Data:', { chartLabels, costSavedData });
+        
         const costSavingsChart = new Chart(costSavingsCtx, {
             type: 'area',
             data: {
-                labels: {{ chart_labels|safe }},
+                labels: chartLabels || [],
                 datasets: [{
-                    label: 'Cost Saved ($)',
-                    data: {{ co2_saved_data|safe }}.map(x => (x * 0.02).toFixed(4)),
+                    label: 'Daily Cost Saved (¢)',
+                    data: costSavedData || [],
                     backgroundColor: 'rgba(245, 158, 11, 0.2)',
                     borderColor: '#F59E0B',
                     borderWidth: 3,
                     fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Cumulative Savings',
+                    data: (costSavedData || []).reduce((acc, curr, i) => {
+                        acc.push(i === 0 ? curr : acc[i-1] + curr);
+                        return acc;
+                    }, []),
+                    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                    borderColor: '#34D399',
+                    borderWidth: 2,
+                    fill: false,
                     tension: 0.4
                 }]
             },
@@ -1334,27 +1351,46 @@
 
         // Model Distribution Chart
         const modelDistributionCtx = document.getElementById('modelDistributionChart').getContext('2d');
-        const modelDistributionChart = new Chart(modelDistributionCtx, {
-            type: 'pie',
-            data: {
-                labels: ['GPT-3.5 Turbo', 'GPT-4', 'Claude-3', 'Gemini Pro'],
-                datasets: [{
-                    data: [45, 30, 15, 10],
-                    backgroundColor: [
-                        'rgba(52, 211, 153, 0.8)',
-                        'rgba(96, 165, 250, 0.8)',
-                        'rgba(245, 158, 11, 0.8)',
-                        'rgba(139, 92, 246, 0.8)'
-                    ],
-                    borderColor: [
-                        '#34D399',
-                        '#60A5FA',
-                        '#F59E0B',
-                        '#8B5CF6'
-                    ],
-                    borderWidth: 2
-                }]
-            },
+        const modelUsageData = {{ model_usage_data|safe }} || [];
+        
+        // Debug logging
+        console.log('Model Usage Data:', modelUsageData);
+        
+        // Prepare data for chart
+        const modelLabels = (modelUsageData || []).map(item => item.model);
+        const modelUsagePercentages = (modelUsageData || []).map(item => item.percentage);
+        const modelEfficiencyScores = (modelUsageData || []).map(item => item.efficiency_score);
+        
+        // Create color palette
+        const colors = [
+            'rgba(52, 211, 153, 0.8)',   // Green
+            'rgba(96, 165, 250, 0.8)',   // Blue  
+            'rgba(245, 158, 11, 0.8)',   // Yellow
+            'rgba(139, 92, 246, 0.8)',   // Purple
+            'rgba(239, 68, 68, 0.8)',    // Red
+            'rgba(34, 197, 94, 0.8)',    // Emerald
+            'rgba(251, 146, 60, 0.8)'    // Orange
+        ];
+        
+        const borderColors = [
+            '#34D399', '#60A5FA', '#F59E0B', '#8B5CF6', 
+            '#EF4444', '#22C55E', '#FB923C'
+        ];
+        
+        // Only create chart if we have data
+        if (modelLabels.length > 0) {
+            const modelDistributionChart = new Chart(modelDistributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: modelLabels,
+                    datasets: [{
+                        label: 'Usage Percentage',
+                        data: modelUsagePercentages,
+                        backgroundColor: colors.slice(0, modelLabels.length),
+                        borderColor: borderColors.slice(0, modelLabels.length),
+                        borderWidth: 2
+                    }]
+                },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -1363,12 +1399,53 @@
                         position: 'bottom',
                         labels: {
                             color: '#a1a1aa',
-                            usePointStyle: true
+                            usePointStyle: true,
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const modelData = modelUsageData[i];
+                                        return {
+                                            text: `${label}: ${modelData.percentage.toFixed(1)}% (${modelData.calls} calls)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].borderColor[i],
+                                            lineWidth: data.datasets[0].borderWidth,
+                                            pointStyle: 'circle',
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const modelData = modelUsageData[context.dataIndex];
+                                return [
+                                    `Model: ${context.label}`,
+                                    `Usage: ${modelData.percentage.toFixed(1)}%`,
+                                    `Calls: ${modelData.calls}`,
+                                    `Avg Tokens Saved: ${modelData.avg_tokens_saved.toFixed(1)}`,
+                                    `Avg Cost Saved: ${modelData.avg_cost_saved.toFixed(2)}¢`,
+                                    `Avg CO₂ Saved: ${modelData.avg_co2_saved.toFixed(4)}g`,
+                                    `Efficiency Score: ${modelData.efficiency_score.toFixed(2)}`
+                                ];
+                            }
                         }
                     }
                 }
             }
         });
+        } else {
+            // Show placeholder text if no data
+            modelDistributionCtx.font = '16px Arial';
+            modelDistributionCtx.fillStyle = '#a1a1aa';
+            modelDistributionCtx.textAlign = 'center';
+            modelDistributionCtx.fillText('No model data available', 150, 100);
+        }
 
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', function(e) {
