@@ -18,7 +18,7 @@ from ecoai.migration.legacy_import import import_legacy_database
 from ecoai.models import Receipt, User
 from ecoai.services.credentials import hash_api_key, verify_password
 
-LEGACY_API_KEY = "ecoai_***ROTATED-KEY-REMOVED***"
+LEGACY_API_KEY = "ecoai_test_fixture_legacy_key_00112233"
 LEGACY_PASSWORD = "old-password"
 
 
