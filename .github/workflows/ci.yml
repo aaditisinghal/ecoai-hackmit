@@ -49,7 +49,9 @@ jobs:
       - run: pip install -r requirements-dev.txt
 
       - name: Tests
-        run: pytest --cov=ecoai --cov-report=term-missing --cov-report=xml
+        # python -m pytest, not bare `pytest` - that's what puts the repo root
+        # on sys.path so `import ecoai` resolves without an editable install.
+        run: python -m pytest --cov=ecoai --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
         if: matrix.python-version == '3.11'

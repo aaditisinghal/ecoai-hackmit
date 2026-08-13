@@ -96,7 +96,7 @@ class TestApiKeys:
         [
             ("ecoai_" + "a" * 30, True),
             ("ecoai_short", False),
-            ("sk-not-an-ecoai-key-at-all-here", False),
+            ("wrong-prefix-not-an-ecoai-key-at-all", False),
             ("", False),
             ("   ", False),
         ],
