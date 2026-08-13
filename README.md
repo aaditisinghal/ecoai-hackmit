@@ -1,5 +1,11 @@
 # EcoAI Portal
 
+[![CI](https://github.com/kbhatnagar1506/EcoAI/actions/workflows/ci.yml/badge.svg)](https://github.com/kbhatnagar1506/EcoAI/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](.python-version)
+
+🏆 **1st place — Infosys (Diamond Sponsor) track, HackMIT 2025**
+
 Rewrites LLM prompts to cost fewer tokens without changing what they ask for,
 then records the energy and emissions avoided.
 

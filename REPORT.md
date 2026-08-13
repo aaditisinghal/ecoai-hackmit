@@ -4,6 +4,10 @@ A technical report on EcoAI's carbon model: the problem it's built for, what
 it does, and a real-hardware experiment that found a limit in its own core
 assumption.
 
+*Originally built for HackMIT 2025, where it placed 1st in Infosys's Diamond
+Sponsor track. This report and the codebase behind it were substantially
+reworked afterward — see the commit history for what changed and why.*
+
 ---
 
 ## The problem
