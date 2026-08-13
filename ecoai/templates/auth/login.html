@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Sign in — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container container--form page">
+  <div class="card">
+    <h1>Sign in</h1>
+    <p class="muted small">Welcome back.</p>
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="field">
+        {{ form.identifier.label }}
+        {{ form.identifier(class="input", autocomplete="username", autofocus=true) }}
+        {% for error in form.identifier.errors %}
+          <span class="field__error">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="field">
+        {{ form.password.label }}
+        {{ form.password(class="input", autocomplete="current-password") }}
+        {% for error in form.password.errors %}
+          <span class="field__error">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="field checkbox">
+        {{ form.remember() }} {{ form.remember.label }}
+      </div>
+
+      {{ form.submit(class="btn btn--primary btn--block") }}
+    </form>
+
+    {% if google_oauth_enabled %}
+      <div class="divider">or</div>
+      <a class="btn btn--google btn--block" href="{{ url_for('oauth.start') }}">
+        <img src="{{ url_for('static', filename='img/google.png') }}" alt="">
+        Continue with Google
+      </a>
+    {% endif %}
+
+    <p class="small muted mt-3 mb-0 text-center">
+      No account? <a href="{{ url_for('auth.signup') }}">Create one</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

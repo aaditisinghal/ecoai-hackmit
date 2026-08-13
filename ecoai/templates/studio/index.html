@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Prompt Studio — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container page stack">
+
+  <div>
+    <h1 class="mb-0">Prompt Studio</h1>
+    <p class="muted small">
+      Optimization runs on the server and every result is saved as a receipt.
+    </p>
+  </div>
+
+  <form id="optimize-form" class="studio">
+    {{ form.hidden_tag() }}
+
+    <div class="card">
+      <div class="field">
+        {{ form.prompt.label }}
+        {{ form.prompt(class="textarea", placeholder="Paste a prompt. Code blocks, URLs and {{placeholders}} are preserved verbatim.") }}
+        <span class="field__hint"><span id="char-count">0</span> characters</span>
+      </div>
+
+      <div class="studio__controls">
+        <div class="field">
+          {{ form.strategy.label }}
+          {{ form.strategy(class="select") }}
+        </div>
+        <div class="field">
+          {{ form.model.label }}
+          {{ form.model(class="input", list="model-options") }}
+          <datalist id="model-options">
+            <option value="gpt-4o-mini"></option>
+            <option value="gpt-4o"></option>
+            <option value="claude-3-5-sonnet"></option>
+            <option value="llama-3.1-70b"></option>
+          </datalist>
+        </div>
+        <div class="field">
+          {{ form.region.label }}
+          <select class="select" name="region" id="region">
+            {% for region, intensity in regions %}
+              <option value="{{ region }}" {% if region == 'us-east-1' %}selected{% endif %}>
+                {{ region }} — {{ intensity | round | int }} g/kWh
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn--primary" type="submit" id="optimize-btn">Optimize</button>
+      </div>
+
+      <p class="field__error mt-2 hidden" id="studio-error" role="alert"></p>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="flex-between">
+          <h2 class="mb-0">Optimized prompt</h2>
+          <button class="btn btn--secondary btn--sm" type="button" data-copy-target="optimized-output">Copy</button>
+        </div>
+        <pre class="result-output mt-2" id="optimized-output">Your optimized prompt will appear here.</pre>
+      </div>
+
+      <div class="card">
+        <h2>Impact</h2>
+        <dl class="mb-0">
+          <div class="metric-row"><dt>Tokens before</dt><dd id="m-before">—</dd></div>
+          <div class="metric-row"><dt>Tokens after</dt><dd id="m-after">—</dd></div>
+          <div class="metric-row"><dt>Reduction</dt><dd id="m-reduction">—</dd></div>
+          <div class="metric-row"><dt>CO₂e avoided</dt><dd id="m-co2">—</dd></div>
+          <div class="metric-row"><dt>Energy avoided</dt><dd id="m-kwh">—</dd></div>
+          <div class="metric-row"><dt>Retention score</dt><dd id="m-retention">—</dd></div>
+        </dl>
+      </div>
+
+      <div class="card hidden" id="transformations-card">
+        <h2>What changed</h2>
+        <ul class="tag-list" id="transformations"></ul>
+      </div>
+
+      <div class="callout callout--warning hidden" id="warnings-card">
+        <strong>Warnings</strong>
+        <ul id="warnings" style="margin:0;padding-left:1.1rem;"></ul>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/copy.js') }}"></script>
+<script src="{{ url_for('static', filename='js/studio.js') }}"></script>
+{% endblock %}

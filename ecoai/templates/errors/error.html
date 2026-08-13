@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ status }} — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container container--narrow page">
+  <div class="empty-state">
+    <h1 style="font-size:3.5rem;margin-bottom:0.25rem;">{{ status }}</h1>
+    <h3>{{ message }}</h3>
+    <p class="mt-3">
+      <a class="btn btn--primary" href="{{ url_for('public.home') }}">Back to home</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

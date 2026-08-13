@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ECOAI_ENV: testing
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Ruff
+        run: ruff check --output-format=github .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.11 is what Heroku runs; 3.13 catches deprecations early.
+        python-version: ["3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Tests
+        run: pytest --cov=ecoai --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage
+        if: matrix.python-version == '3.11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+
+  migrations:
+    # Migrations are what production actually runs on release, so they get
+    # exercised against a real PostgreSQL rather than only against SQLite.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ecoai_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Apply migrations
+        env:
+          FLASK_APP: wsgi.py
+          ECOAI_ENV: development
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/ecoai_test
+        run: flask db upgrade
+
+      - name: Check for un-migrated model changes
+        env:
+          FLASK_APP: wsgi.py
+          ECOAI_ENV: development
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/ecoai_test
+        run: |
+          flask db check
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan the working tree for committed credentials
+        run: |
+          set -o pipefail
+          PATTERN='(sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)'
+          if git grep -nIE "$PATTERN" -- . ':!.github/workflows/ci.yml'; then
+            echo "::error::Possible credential committed to the repository."
+            exit 1
+          fi
+          echo "No credential patterns found."
+
+      - name: Fail if a database file is tracked
+        run: |
+          if git ls-files | grep -E '\.(db|sqlite3?)$'; then
+            echo "::error::A database file is tracked. Databases hold user data and must not be committed."
+            exit 1
+          fi
+          echo "No database files tracked."

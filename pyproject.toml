@@ -1,0 +1,23 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".venv", "migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = [
+    # Long lines are flagged by the formatter; E501 duplicates that and fires
+    # on URLs and docstring citations we do not want to wrap.
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Fixtures shadow their own names by design, and asserts are the point.
+"tests/*" = ["B011", "N802"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = [
+    "error::DeprecationWarning:ecoai.*",
+]

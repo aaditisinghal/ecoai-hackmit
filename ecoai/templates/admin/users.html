@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Users — Admin — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container page stack">
+  <div class="flex-between">
+    <div>
+      <h1 class="mb-0">Users</h1>
+      <p class="muted small mb-0">{{ total }} account{{ '' if total == 1 else 's' }}</p>
+    </div>
+    <form method="get" class="flex gap-1">
+      <input class="input" type="search" name="q" value="{{ query }}" placeholder="Search username or email">
+      <button class="btn btn--secondary" type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Key prefix</th>
+          <th>Joined</th>
+          <th>Last sign-in</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>
+              {{ user.username }}
+              {% if user.is_admin %}<span class="badge badge--admin">admin</span>{% endif %}
+            </td>
+            <td class="small muted">{{ user.email }}</td>
+            {# The prefix only. The rest of the key exists nowhere. #}
+            <td class="mono small muted">{{ user.api_key_prefix or '—' }}</td>
+            <td class="small muted">{{ user.created_at.strftime('%d %b %Y') }}</td>
+            <td class="small muted">
+              {{ user.last_login_at.strftime('%d %b %Y') if user.last_login_at else 'never' }}
+            </td>
+            <td>
+              {% if user.is_active %}
+                <span class="badge badge--success">active</span>
+              {% else %}
+                <span class="badge badge--danger">disabled</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if user.id != current_user.id %}
+                <div class="flex gap-1">
+                  <form method="post" action="{{ url_for('admin.toggle_active', user_id=user.id, page=page) }}">
+                    {{ form.hidden_tag() }}
+                    <button class="btn btn--sm {{ 'btn--danger' if user.is_active else 'btn--secondary' }}" type="submit">
+                      {{ 'Disable' if user.is_active else 'Enable' }}
+                    </button>
+                  </form>
+                  <form method="post" action="{{ url_for('admin.toggle_admin', user_id=user.id, page=page) }}">
+                    {{ form.hidden_tag() }}
+                    <button class="btn btn--sm btn--secondary" type="submit">
+                      {{ 'Revoke admin' if user.is_admin else 'Make admin' }}
+                    </button>
+                  </form>
+                </div>
+              {% else %}
+                <span class="small muted">you</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="muted small">No accounts match.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total > page_size %}
+    <div class="flex gap-1">
+      {% if page > 1 %}
+        <a class="btn btn--secondary btn--sm" href="{{ url_for('admin.users', page=page-1, q=query) }}">Previous</a>
+      {% endif %}
+      <span class="small muted" style="align-self:center">
+        Page {{ page }} of {{ (total // page_size) + (1 if total % page_size else 0) }}
+      </span>
+      {% if page * page_size < total %}
+        <a class="btn btn--secondary btn--sm" href="{{ url_for('admin.users', page=page+1, q=query) }}">Next</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

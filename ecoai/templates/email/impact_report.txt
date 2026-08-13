@@ -1,0 +1,41 @@
+Your EcoAI impact report
+========================
+
+Hi {{ user.username }},
+
+Here is what your prompt optimizations have added up to.
+
+Environmental impact
+--------------------
+CO2e avoided:     {{ "%.4f"|format(data.summary.total_co2_g_saved) }} g
+Energy avoided:   {{ "%.8f"|format(data.summary.total_kwh_saved) }} kWh
+
+Usage
+-----
+Optimizations:    {{ "{:,}".format(data.summary.total_calls) }}
+Tokens saved:     {{ "{:,}".format(data.summary.total_tokens_saved) }}
+Average reduction:{{ " %.1f"|format(data.summary.reduction_ratio * 100) }}%
+Cost avoided:     ${{ "%.4f"|format(data.summary.total_cost_saved_usd) }}
+{% if data.summary.avg_retention_score is not none %}
+Avg retention:    {{ "%.1f"|format(data.summary.avg_retention_score * 100) }}%
+{% endif %}
+
+Before and after
+----------------
+Average tokens per prompt: {{ "%.1f"|format(data.summary.avg_tokens_before) }} -> {{ "%.1f"|format(data.summary.avg_tokens_after) }}
+
+{% if data.model_usage %}
+By model
+--------
+{% for usage in data.model_usage %}- {{ usage.model }}: {{ usage.calls }} call{{ '' if usage.calls == 1 else 's' }}, {{ "{:,}".format(usage.tokens_saved) }} tokens saved
+{% endfor %}
+{% endif %}
+
+These figures are estimates built from published coefficients, not
+measurements taken inside a provider's datacenter. They are meaningful as a
+before-and-after comparison of your own prompts.
+
+View your dashboard: {{ config['APP_BASE_URL'] }}/dashboard
+
+--
+EcoAI Portal

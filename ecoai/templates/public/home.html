@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}EcoAI — measure and cut the carbon cost of your prompts{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <h1>Every token you don't send is energy you don't spend.</h1>
+    <p>
+      EcoAI rewrites prompts to cost fewer tokens without dropping what they
+      actually say, then shows you the energy and emissions you avoided.
+    </p>
+    <div class="hero__actions">
+      {% if current_user.is_authenticated %}
+        <a class="btn btn--primary" href="{{ url_for('studio.index') }}">Open Prompt Studio</a>
+        <a class="btn btn--secondary" href="{{ url_for('dashboard.index') }}">View dashboard</a>
+      {% else %}
+        <a class="btn btn--primary" href="{{ url_for('auth.signup') }}">Create an account</a>
+        <a class="btn btn--secondary" href="{{ url_for('public.docs') }}">Read the docs</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="container page">
+  <div class="grid grid--3">
+    <div class="card">
+      <h3>Structure-aware rewriting</h3>
+      <p class="muted mb-0">
+        Code blocks, URLs and template placeholders are extracted before any
+        rewriting happens and restored untouched. Line structure survives, so
+        few-shot examples and lists still look like themselves.
+      </p>
+    </div>
+    <div class="card">
+      <h3>A score that's measured</h3>
+      <p class="muted mb-0">
+        Every optimization reports a retention score: the share of content
+        words, numbers and protected spans that survived. It is computed from
+        the text, not asserted as a constant.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Transparent carbon math</h3>
+      <p class="muted mb-0">
+        Tokens to FLOPs to joules to grams CO₂e, with every coefficient
+        documented and overridable through configuration. Regional grid
+        intensity included.
+      </p>
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <h2>How it works</h2>
+    <div class="grid grid--2 mt-3">
+      <div>
+        <h3>1. Optimize</h3>
+        <p class="muted">
+          Send a prompt through the Studio or the SDK. Choose conservative,
+          balanced or aggressive depending on how much rewriting you want.
+        </p>
+        <h3>2. Record</h3>
+        <p class="muted mb-0">
+          Each optimization produces a receipt: tokens before and after, energy,
+          emissions, and exactly which transformations fired.
+        </p>
+      </div>
+      <div>
+<pre><code>from ecoai_sdk import EcoAI
+
+eco = EcoAI(api_key="ecoai_...")
+result = eco.optimize(
+    "Could you please kindly summarize this?",
+    strategy="balanced",
+)
+
+print(result.optimized)
+print(result.tokens_saved, "tokens saved")
+print(result.co2_g_saved, "g CO2e avoided")</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout--warning mt-4">
+    <strong>About the numbers</strong>
+    Emissions figures are estimates built from published coefficients, not
+    measurements taken inside a provider's datacenter. They are reliable for
+    comparing a prompt against itself before and after optimization, which is
+    what the dashboard reports. The
+    <a href="{{ url_for('public.docs') }}#carbon">documentation</a> shows every
+    coefficient and where it comes from.
+  </div>
+</section>
+{% endblock %}

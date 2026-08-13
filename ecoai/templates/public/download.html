@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}SDK — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container container--narrow page stack">
+  <div>
+    <h1 class="mb-0">Python SDK</h1>
+    <p class="muted">
+      A single file with one dependency. It calls this portal's API, so the SDK
+      and the Studio always agree on what an optimization produced.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Install</h2>
+    <p class="muted small">Download the module and drop it next to your code.</p>
+    <p>
+      <a class="btn btn--primary" href="{{ url_for('public.download_sdk') }}">Download ecoai_sdk.py</a>
+    </p>
+<pre><code>pip install requests</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>Use it</h2>
+<pre><code>from ecoai_sdk import EcoAI
+
+eco = EcoAI(
+    api_key="ecoai_...",              # or set ECOAI_API_KEY
+    base_url="{{ base_url }}",
+)
+
+result = eco.optimize(
+    "Could you please kindly write a very detailed summary?",
+    strategy="balanced",
+    model="gpt-4o-mini",
+    region="eu-north-1",
+)
+
+print(result.optimized)
+print(f"{result.tokens_saved} tokens saved ({result.reduction_ratio:.1%})")
+print(f"{result.co2_g_saved:.6f} g CO2e avoided")
+print(f"retention {result.retention_score:.2f}")</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>Batch reporting</h2>
+    <p class="muted small">
+      Already optimizing elsewhere? Send receipts directly. Ingestion is
+      idempotent on <code>receipt_id</code>, so retries never double-count.
+    </p>
+<pre><code>eco.send_receipts([
+    {
+        "receipt_id": "run-42",
+        "tokens_before": 1200,
+        "tokens_after": 890,
+        "model": "gpt-4o",
+        "region": "us-west-2",
+    }
+])</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>Get your key</h2>
+    {% if current_user.is_authenticated %}
+      <p class="mb-0">
+        Your key lives on your <a href="{{ url_for('auth.profile') }}">profile</a>.
+        Keys are shown once at creation — generate a new one there if you need it again.
+      </p>
+    {% else %}
+      <p class="mb-0">
+        <a href="{{ url_for('auth.signup') }}">Create an account</a> and a key is issued
+        immediately.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

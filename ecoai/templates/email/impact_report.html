@@ -1,0 +1,111 @@
+{#
+  Email HTML. Tables and inline styles rather than the site's stylesheet:
+  mail clients strip <style> blocks and have no support for flexbox or grid.
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your EcoAI impact report</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#0f172a;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,0.08);">
+
+          <tr>
+            <td style="background:#059669;padding:28px 32px;color:#ffffff;">
+              <h1 style="margin:0;font-size:22px;font-weight:650;">Your EcoAI impact report</h1>
+              <p style="margin:6px 0 0;font-size:14px;opacity:0.9;">Hi {{ user.username }} — here is what your optimizations add up to.</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:28px 32px 8px;">
+              <div style="background:#ecfdf5;border-radius:10px;padding:20px;text-align:center;">
+                <div style="font-size:30px;font-weight:700;color:#047857;line-height:1.2;">
+                  {{ "%.3f"|format(data.summary.total_co2_g_saved) }} g
+                </div>
+                <div style="font-size:13px;color:#475569;margin-top:4px;">CO₂e avoided</div>
+                <div style="font-size:12px;color:#64748b;margin-top:8px;">
+                  {{ "%.8f"|format(data.summary.total_kwh_saved) }} kWh of energy not spent
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:12px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#475569;">Optimizations</td>
+                  <td align="right" style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-weight:650;">{{ "{:,}".format(data.summary.total_calls) }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#475569;">Tokens saved</td>
+                  <td align="right" style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-weight:650;">{{ "{:,}".format(data.summary.total_tokens_saved) }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#475569;">Average reduction</td>
+                  <td align="right" style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-weight:650;">{{ "%.1f"|format(data.summary.reduction_ratio * 100) }}%</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;color:#475569;">Estimated cost avoided</td>
+                  <td align="right" style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-weight:650;">${{ "%.4f"|format(data.summary.total_cost_saved_usd) }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;color:#475569;">Average prompt size</td>
+                  <td align="right" style="padding:10px 0;font-weight:650;">
+                    {{ "%.0f"|format(data.summary.avg_tokens_before) }} → {{ "%.0f"|format(data.summary.avg_tokens_after) }} tokens
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          {% if data.model_usage %}
+            <tr>
+              <td style="padding:8px 32px 0;">
+                <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;margin:16px 0 8px;">By model</h2>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;">
+                  {% for usage in data.model_usage %}
+                    <tr>
+                      <td style="padding:6px 0;color:#334155;font-family:monospace;">{{ usage.model }}</td>
+                      <td align="right" style="padding:6px 0;color:#475569;">
+                        {{ usage.calls }} call{{ '' if usage.calls == 1 else 's' }} · {{ "{:,}".format(usage.tokens_saved) }} tokens
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </td>
+            </tr>
+          {% endif %}
+
+          <tr>
+            <td style="padding:24px 32px;">
+              <a href="{{ config['APP_BASE_URL'] }}/dashboard"
+                 style="display:inline-block;background:#059669;color:#ffffff;padding:11px 22px;border-radius:8px;font-weight:650;font-size:14px;text-decoration:none;">
+                Open your dashboard
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 32px 28px;">
+              <p style="font-size:12px;color:#64748b;line-height:1.6;margin:0;border-top:1px solid #e2e8f0;padding-top:16px;">
+                These figures are estimates built from published coefficients, not
+                measurements taken inside a provider's datacenter. They are meaningful
+                as a before-and-after comparison of your own prompts. You are receiving
+                this because you requested it from your dashboard.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Create an account — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container container--form page">
+  <div class="card">
+    <h1>Create an account</h1>
+    <p class="muted small">You'll get an API key on the next screen.</p>
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="field">
+        {{ form.username.label }}
+        {{ form.username(class="input", autocomplete="username", autofocus=true) }}
+        {% for error in form.username.errors %}
+          <span class="field__error">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="field">
+        {{ form.email.label }}
+        {{ form.email(class="input", autocomplete="email", type="email") }}
+        {% for error in form.email.errors %}
+          <span class="field__error">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="field">
+        {{ form.password.label }}
+        {{ form.password(class="input", autocomplete="new-password") }}
+        <span class="field__hint">At least 12 characters. Length beats symbols.</span>
+        {% for error in form.password.errors %}
+          <span class="field__error">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="field">
+        {{ form.confirm_password.label }}
+        {{ form.confirm_password(class="input", autocomplete="new-password") }}
+        {% for error in form.confirm_password.errors %}
+          <span class="field__error">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      {{ form.submit(class="btn btn--primary btn--block") }}
+    </form>
+
+    {% if google_oauth_enabled %}
+      <div class="divider">or</div>
+      <a class="btn btn--google btn--block" href="{{ url_for('oauth.start') }}">
+        <img src="{{ url_for('static', filename='img/google.png') }}" alt="">
+        Continue with Google
+      </a>
+    {% endif %}
+
+    <p class="small muted mt-3 mb-0 text-center">
+      Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

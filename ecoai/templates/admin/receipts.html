@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Receipts — Admin — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container page stack">
+  <div class="flex-between">
+    <div>
+      <h1 class="mb-0">Receipts</h1>
+      <p class="muted small mb-0">{{ total }} total</p>
+    </div>
+    <a class="btn btn--secondary btn--sm" href="{{ url_for('admin.export', dataset='receipts') }}">Export CSV</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Receipt</th>
+          <th>Account</th>
+          <th>Model</th>
+          <th>Region</th>
+          <th class="num">Before</th>
+          <th class="num">After</th>
+          <th class="num">Saved</th>
+          <th class="num">CO₂e</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for receipt in receipts %}
+          <tr>
+            <td class="mono small">{{ receipt.receipt_id[:24] }}…</td>
+            <td class="small">{{ receipt.user.username if receipt.user else '—' }}</td>
+            <td class="mono small">{{ receipt.model or '—' }}</td>
+            <td class="mono small">{{ receipt.region or '—' }}</td>
+            <td class="num">{{ receipt.tokens_before }}</td>
+            <td class="num">{{ receipt.tokens_after }}</td>
+            <td class="num">{{ receipt.tokens_saved }}</td>
+            <td class="num">{{ receipt.co2_g_saved | gram }}</td>
+            <td class="small muted">{{ receipt.created_at.strftime('%d %b %Y %H:%M') }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="9" class="muted small">No receipts yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total > page_size %}
+    <div class="flex gap-1">
+      {% if page > 1 %}
+        <a class="btn btn--secondary btn--sm" href="{{ url_for('admin.receipts', page=page-1) }}">Previous</a>
+      {% endif %}
+      <span class="small muted" style="align-self:center">
+        Page {{ page }} of {{ (total // page_size) + (1 if total % page_size else 0) }}
+      </span>
+      {% if page * page_size < total %}
+        <a class="btn btn--secondary btn--sm" href="{{ url_for('admin.receipts', page=page+1) }}">Next</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

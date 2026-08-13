@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Admin — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container page stack">
+  <div class="flex-between">
+    <h1 class="mb-0">Administration</h1>
+    <div class="flex gap-1">
+      <a class="btn btn--secondary btn--sm" href="{{ url_for('admin.users') }}">Users</a>
+      <a class="btn btn--secondary btn--sm" href="{{ url_for('admin.receipts') }}">Receipts</a>
+    </div>
+  </div>
+
+  <div class="grid grid--4">
+    <div class="card stat">
+      <span class="stat__value">{{ "{:,}".format(total_users) }}</span>
+      <span class="stat__label">Accounts</span>
+      <span class="stat__hint">{{ active_users }} active</span>
+    </div>
+    <div class="card stat">
+      <span class="stat__value">{{ "{:,}".format(total_receipts) }}</span>
+      <span class="stat__label">Receipts</span>
+    </div>
+    <div class="card stat stat--accent">
+      <span class="stat__value">{{ total_co2_saved | gram }}</span>
+      <span class="stat__label">CO₂e avoided, all accounts</span>
+    </div>
+    <div class="card stat">
+      <span class="stat__value">{{ "{:,}".format(total_tokens_saved) }}</span>
+      <span class="stat__label">Tokens saved, all accounts</span>
+    </div>
+  </div>
+
+  <div class="grid grid--2">
+    <div class="card">
+      <div class="flex-between">
+        <h2 class="mb-0">Newest accounts</h2>
+        <a class="small" href="{{ url_for('admin.export', dataset='users') }}">Export CSV</a>
+      </div>
+      <div class="table-wrap mt-2" style="border:none">
+        <table class="table">
+          <thead><tr><th>User</th><th>Email</th><th>Joined</th></tr></thead>
+          <tbody>
+            {% for user in recent_users %}
+              <tr>
+                <td>{{ user.username }}{% if user.is_admin %} <span class="badge badge--admin">admin</span>{% endif %}</td>
+                <td class="small muted">{{ user.email }}</td>
+                <td class="small muted">{{ user.created_at.strftime('%d %b %Y') }}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="3" class="muted small">No accounts yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex-between">
+        <h2 class="mb-0">Latest receipts</h2>
+        <a class="small" href="{{ url_for('admin.export', dataset='receipts') }}">Export CSV</a>
+      </div>
+      <div class="table-wrap mt-2" style="border:none">
+        <table class="table">
+          <thead><tr><th>Receipt</th><th class="num">Saved</th><th>When</th></tr></thead>
+          <tbody>
+            {% for receipt in recent_receipts %}
+              <tr>
+                <td class="mono small">{{ receipt.receipt_id[:22] }}…</td>
+                <td class="num">{{ receipt.tokens_saved }}</td>
+                <td class="small muted">{{ receipt.created_at.strftime('%d %b %H:%M') }}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="3" class="muted small">No receipts yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>API keys are not visible here</strong>
+    Only a SHA-256 digest and the leading characters are stored, so no
+    administrator — and no database dump — can recover a user's key.
+  </div>
+</div>
+{% endblock %}

@@ -1,38 +1,38 @@
+# Secrets - never commit these
+.env
+.env.*
+!.env.example
+
+# Instance data: local databases, uploads, anything runtime-generated
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+.eggs/
 
 # Virtual environments
+.venv/
 venv/
 env/
 ENV/
 
-# Database
-*.db
-*.sqlite3
-
-# Environment variables
-.env
-.env.local
-.env.production
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
 
 # IDE
 .vscode/
@@ -46,10 +46,3 @@ Thumbs.db
 
 # Logs
 *.log
-
-# Test files
-test_*.py
-*_test.py
-
-# Email config (contains sensitive data)
-email_config.txt

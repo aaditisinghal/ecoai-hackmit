@@ -1,0 +1,82 @@
+{#
+  Base layout. Every page extends this.
+
+  Assets are self-hosted so the Content-Security-Policy set in
+  ecoai/__init__.py can stay restricted to 'self' with no CDN exceptions.
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}EcoAI Portal{% endblock %}</title>
+  <meta name="description" content="{% block description %}Measure and reduce the carbon cost of your LLM prompts.{% endblock %}">
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {% if current_user.is_authenticated %}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+  {% endif %}
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="{{ url_for('public.home') }}">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+        EcoAI
+      </a>
+
+      <nav class="nav" aria-label="Main">
+        <a href="{{ url_for('public.docs') }}" {% if request.endpoint == 'public.docs' %}class="is-active"{% endif %}>Docs</a>
+        <a href="{{ url_for('public.download') }}" {% if request.endpoint == 'public.download' %}class="is-active"{% endif %}>SDK</a>
+
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('dashboard.index') }}" {% if request.endpoint == 'dashboard.index' %}class="is-active"{% endif %}>Dashboard</a>
+          <a href="{{ url_for('studio.index') }}" {% if request.endpoint == 'studio.index' %}class="is-active"{% endif %}>Studio</a>
+          <a href="{{ url_for('auth.profile') }}" {% if request.endpoint == 'auth.profile' %}class="is-active"{% endif %}>Profile</a>
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.index') }}" {% if request.blueprint == 'admin' %}class="is-active"{% endif %}>Admin</a>
+          {% endif %}
+          {# Sign-out is a POST so a stray link or prefetch cannot end a session. #}
+          <form method="post" action="{{ url_for('auth.logout') }}" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit">Sign out</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">Sign in</a>
+          <a class="btn btn--primary btn--sm" href="{{ url_for('auth.signup') }}">Get started</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container">
+          <ul class="flashes">
+            {% for category, message in messages %}
+              <li class="flash flash--{{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>EcoAI Portal v{{ app_version }}</span>
+      <span>
+        <a href="{{ url_for('public.docs') }}">Documentation</a>
+        &middot;
+        <a href="{{ url_for('public.healthz') }}">Status</a>
+      </span>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

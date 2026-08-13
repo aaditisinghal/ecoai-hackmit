@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — EcoAI{% endblock %}
+
+{% block content %}
+<div class="container page stack">
+
+  <div class="flex-between">
+    <div>
+      <h1 class="mb-0">Dashboard</h1>
+      <p class="muted small mb-0">Your optimizations only — nobody else's.</p>
+    </div>
+    <div class="flex gap-1">
+      <a class="btn btn--secondary btn--sm" href="{{ url_for('dashboard.export_csv') }}">Export CSV</a>
+      <form method="post" action="{{ url_for('dashboard.email_report') }}">
+        {{ report_form.hidden_tag() }}
+        <button class="btn btn--secondary btn--sm" type="submit">Email me this report</button>
+      </form>
+      <a class="btn btn--primary btn--sm" href="{{ url_for('studio.index') }}">New optimization</a>
+    </div>
+  </div>
+
+  {% if not data.has_data %}
+    <div class="card empty-state">
+      <h3>No optimizations yet</h3>
+      <p>Run a prompt through the Studio, or send receipts from the SDK, and your impact will show up here.</p>
+      <a class="btn btn--primary" href="{{ url_for('studio.index') }}">Open Prompt Studio</a>
+    </div>
+  {% else %}
+
+    <div class="grid grid--4">
+      <div class="card stat stat--accent">
+        <span class="stat__value">{{ data.summary.total_co2_g_saved | gram }}</span>
+        <span class="stat__label">CO₂e avoided</span>
+        <span class="stat__hint">{{ "%.6f"|format(data.summary.total_kwh_saved) }} kWh</span>
+      </div>
+      <div class="card stat">
+        <span class="stat__value">{{ "{:,}".format(data.summary.total_tokens_saved) }}</span>
+        <span class="stat__label">Tokens saved</span>
+        <span class="stat__hint">{{ data.summary.reduction_ratio | pct }} average reduction</span>
+      </div>
+      <div class="card stat">
+        <span class="stat__value">{{ data.summary.total_cost_saved_usd | usd }}</span>
+        <span class="stat__label">Estimated cost avoided</span>
+        <span class="stat__hint">At published list prices</span>
+      </div>
+      <div class="card stat">
+        <span class="stat__value">{{ "{:,}".format(data.summary.total_calls) }}</span>
+        <span class="stat__label">Optimizations</span>
+        <span class="stat__hint">
+          {% if data.summary.avg_retention_score is not none %}
+            {{ data.summary.avg_retention_score | pct }} avg retention
+          {% else %}
+            Retention not recorded
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex-between">
+        <h2 class="mb-0">Tokens saved per day</h2>
+        <span class="small muted">
+          {{ data.window_start.strftime('%d %b %Y') }} – {{ data.window_end.strftime('%d %b %Y') }}
+        </span>
+      </div>
+
+      {% if data.window_is_historical %}
+        {# The old dashboard hardcoded a trailing 7-day window, so an account
+           whose data was older than a week saw seven zeroes and an empty
+           model table. The window follows the data instead. #}
+        <p class="small muted mt-2 mb-0">
+          No activity in the last 30 days, so this chart shows the 30 days ending
+          at your most recent optimization.
+        </p>
+      {% endif %}
+
+      <svg class="chart mt-3" id="tokens-chart" viewBox="0 0 800 260" preserveAspectRatio="none"
+           role="img" aria-label="Tokens saved per day"></svg>
+    </div>
+
+    <div class="grid grid--2">
+      <div class="card">
+        <h2>By model</h2>
+        {% if data.model_usage %}
+          {% for usage in data.model_usage %}
+            <div class="bar-row">
+              <span class="mono small">{{ usage.model }}</span>
+              <span class="bar-track">
+                <span class="bar-fill" style="width: {{ (usage.share * 100) | round(1) }}%"></span>
+              </span>
+              <span class="small muted nowrap">{{ usage.calls }} · {{ "{:,}".format(usage.tokens_saved) }} tok</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="muted small mb-0">No model information recorded.</p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2>By region</h2>
+        {% if data.region_usage %}
+          {% for region, count in data.region_usage %}
+            <div class="metric-row">
+              <dt class="mono small">{{ region }}</dt>
+              <dd>{{ count }}</dd>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="muted small mb-0">No region information recorded.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <h2>Recent optimizations</h2>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Receipt</th>
+              <th>Model</th>
+              <th>Strategy</th>
+              <th class="num">Before</th>
+              <th class="num">After</th>
+              <th class="num">Saved</th>
+              <th class="num">CO₂e</th>
+              <th class="num">Retention</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for receipt in data.recent_receipts %}
+              <tr>
+                <td class="small muted">{{ receipt.created_at.strftime('%d %b %Y %H:%M') }}</td>
+                {# Shown so a dashboard row can be matched to the API call that created it. #}
+                <td class="mono small muted">{{ receipt.receipt_id }}</td>
+                <td class="mono small">{{ receipt.model or '—' }}</td>
+                <td class="small">{{ receipt.strategy or '—' }}</td>
+                <td class="num">{{ receipt.tokens_before }}</td>
+                <td class="num">{{ receipt.tokens_after }}</td>
+                <td class="num">{{ receipt.tokens_saved }}</td>
+                <td class="num">{{ receipt.co2_g_saved | gram }}</td>
+                <td class="num">
+                  {% if receipt.retention_score is not none %}
+                    {{ receipt.retention_score | pct }}
+                  {% else %}—{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if data.has_data %}
+  <script id="chart-data" type="application/json">{{ chart | tojson }}</script>
+  <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+{% endif %}
+{% endblock %}
