@@ -3,8 +3,7 @@
 [![CI](https://github.com/kbhatnagar1506/EcoAI/actions/workflows/ci.yml/badge.svg)](https://github.com/kbhatnagar1506/EcoAI/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](.python-version)
-
-🏆 **1st place — Infosys (Diamond Sponsor) track, HackMIT 2025**
+[![HackMIT 2025](https://img.shields.io/badge/HackMIT%202025-1st%20Place%2C%20Infosys%20Diamond%20Sponsor-gold.svg)](#hackmit-2025)
 
 Rewrites LLM prompts to cost fewer tokens without changing what they ask for,
 then records the energy and emissions avoided.
@@ -14,6 +13,31 @@ A Flask application: web UI, JSON API, and a single-file Python SDK.
 See [REPORT.md](REPORT.md) for the technical writeup: the problem this is
 built for, and a real-GPU experiment that found a real limit in the carbon
 model's core assumption.
+
+---
+
+## HackMIT 2025
+
+EcoAI started as a submission to [HackMIT](https://hackmit.org) 2025 and won
+**1st place in Infosys's Diamond Sponsor track**, ranked ahead of XiaoPrompt
+and EcoPrompt.
+
+The pitch was straightforward: LLM inference has a real, growing energy
+footprint (see [REPORT.md](REPORT.md) for the cited numbers), and almost
+nobody building on top of a hosted API has any visibility into it. The
+hackathon build got a working version of that idea in front of judges in a
+weekend — a Flask portal, a prompt-rewriting pass, a first attempt at a
+carbon estimate.
+
+Like most hackathon code, it optimized for a working demo over holding up to
+scrutiny afterward: secrets committed to source, no real access control, a
+"quality score" hardcoded to a constant. None of that reflects on the idea
+placing well — it's what a weekend produces under a judging deadline. What's
+in this repository now is the post-hackathon rebuild: the same core idea,
+re-implemented with real authentication, a real test suite, and a carbon
+model checked against actual GPU hardware instead of taken on faith.
+[REPORT.md](REPORT.md) has the full technical writeup, including exactly
+what changed and why.
 
 ---
 
@@ -334,4 +358,11 @@ flask import-legacy legacy/ecoai_portal.db
 `tests/test_security_regressions.py` has one test per historical
 vulnerability. If one fails, a specific past defect has returned.
 
-Found something? Email the maintainer rather than opening a public issue.
+Found something? See [SECURITY.md](SECURITY.md) — don't open a public issue.
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, conventions, and what CI
+checks. This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md).
