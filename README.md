@@ -58,8 +58,17 @@ wasn't in this repository.
 - Estimate energy and CO₂e from token counts using documented, configurable
   coefficients, including per-region grid carbon intensity. This part *is* a
   model, and its accuracy is scoped precisely below.
-- Store every optimization as a receipt and aggregate them per account.
-- Expose all of this over a versioned JSON API and a Python SDK.
+- **Prompt Studio** — paste a prompt, get the optimized version back from the
+  real backend (not a browser mock), with the retention score and exactly
+  which transformations fired.
+- **Dashboard** — per-account charts of tokens/energy/cost saved over time,
+  a model and region breakdown, CSV export, and an emailed impact report.
+  Every figure is scoped to the signed-in account; nothing is aggregated
+  across users.
+- **Admin panel** gated by a real `is_admin` column and a normal login
+  session — no separate hardcoded credential.
+- Store every optimization as a receipt and expose all of it over a
+  versioned JSON API and a Python SDK.
 
 **It does not:**
 
