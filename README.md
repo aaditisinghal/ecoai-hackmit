@@ -5,6 +5,10 @@ then records the energy and emissions avoided.
 
 A Flask application: web UI, JSON API, and a single-file Python SDK.
 
+See [REPORT.md](REPORT.md) for the technical writeup: the problem this is
+built for, and a real-GPU experiment that found a real limit in the carbon
+model's core assumption.
+
 ---
 
 ## What it actually does
