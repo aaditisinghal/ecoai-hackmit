@@ -5,9 +5,6 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](.python-version)
 [![HackMIT 2025](https://img.shields.io/badge/HackMIT%202025-1st%20Place%2C%20Infosys%20Diamond%20Sponsor-gold.svg)](#hackmit-2025)
 
-> Mirrored from [kbhatnagar1506/EcoAI](https://github.com/kbhatnagar1506/EcoAI),
-> created by Krishna Bhatnagar. Full commit history preserved.
-
 Rewrites LLM prompts to cost fewer tokens without changing what they ask for,
 then records the energy and emissions avoided.
 
